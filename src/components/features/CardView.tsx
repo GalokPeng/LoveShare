@@ -108,10 +108,17 @@ const CardView: React.FC<CardViewProps> = ({
                           .VITE_SUPABASE_TABLE_CARD_FLIP_DEFAULT_IMG
                       }
                       alt={row[keywordField] || ""}
+                      loading="lazy"
+                      fetchPriority="auto"
                       sx={{
                         width: "100%",
                         height: "100%",
                         objectFit: "cover",
+                        transition: "opacity 0.3s ease",
+                        opacity: 1,
+                        "&:loading": {
+                          opacity: 0.5,
+                        },
                       }}
                     />
                     <Box
