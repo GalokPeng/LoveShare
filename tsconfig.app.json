@@ -22,7 +22,13 @@
     "noUnusedParameters": true,
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedSideEffectImports": true
+    "noUncheckedSideEffectImports": true,
+
+    /* Path mapping for Vercel Analytics */
+    "baseUrl": ".",
+    "paths": {
+      "@vercel/analytics/react": ["./node_modules/@vercel/analytics/dist/react/index.d.ts"]
+    }
   },
   "include": ["src"]
 }
