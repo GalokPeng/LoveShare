@@ -1,7 +1,16 @@
 {
-  "functions": {
-    "api/vod/[...path].js": {
-      "runtime": "nodejs18.x"
+  "version": 1.1,
+  "builds": [
+    {
+      "src": "api/vod/[...path].js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "index.html",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
     }
-  }
+  ]
 }
