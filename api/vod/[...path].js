@@ -1,11 +1,15 @@
 export default async function handler(req, res) {
   try {
-    const { path } = req.query;
     const apiBaseUrl = process.env.VITE_FILMTELEVISION_API_BASE_URL;
     const apiPath = process.env.VITE_FILMTELEVISION_API_PATH;
 
+    // 构建查询字符串
+    const queryString = req.url.split("?")[1] || "";
+
     // 构建完整的API URL
-    const fullUrl = `${apiBaseUrl}${apiPath}${path ? `?${path[0]}` : ""}`;
+    const fullUrl = `${apiBaseUrl}${apiPath}${
+      queryString ? `?${queryString}` : ""
+    }`;
 
     // 转发请求到目标API
     const response = await fetch(fullUrl, {
