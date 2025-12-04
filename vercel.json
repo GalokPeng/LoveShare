@@ -15,7 +15,7 @@
   ],
   "routes": [
     {
-      "src": "/api/vod/(.*)",
+      "src": "/api/vod(.*)",
       "dest": "/api/vod/[...path].js"
     },
     {
