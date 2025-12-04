@@ -283,6 +283,49 @@ const Sidebar: React.FC<SidebarProps> = ({
             </ListItemButton>
           </ListItem>
 
+          {/* 在线观影菜单项 */}
+          <ListItem disablePadding sx={{ display: "block" }}>
+            <ListItemButton
+              selected={selectedTable === "video-online"}
+              onClick={() => handleListItemClick("video-online", null)}
+              sx={{
+                minHeight: 48,
+                justifyContent: isOpen ? "space-between" : "center",
+                px: isOpen ? 2.5 : 1,
+                borderRadius: isOpen ? "8px" : "12px",
+                margin: "4px 8px",
+                "&.Mui-selected": {
+                  backgroundColor: muiTheme.palette.action.selected,
+                  "&:hover": {
+                    backgroundColor: muiTheme.palette.action.hover,
+                  },
+                },
+                "&:hover": {
+                  backgroundColor: muiTheme.palette.action.hover,
+                },
+                transition: "all var(--theme-transition-duration) ease",
+              }}
+            >
+              <ListItemText
+                primary={isOpen ? "在线观影" : "在线观影".slice(0, 2)}
+                primaryTypographyProps={{
+                  noWrap: true,
+                  sx: {
+                    fontWeight: selectedTable === "video-online" ? 600 : 400,
+                    color:
+                      selectedTable === "video-online"
+                        ? "primary.main"
+                        : "text.primary",
+                    fontSize: isOpen ? "0.95rem" : "0.7rem",
+                    textAlign: "center",
+                    lineHeight: 1.2,
+                    letterSpacing: "-0.02em",
+                  },
+                }}
+              />
+            </ListItemButton>
+          </ListItem>
+
           {/* 其他表菜单项 */}
           {Object.entries(tableDic).map(([tableName, config]) => {
             const isCategoryEnabled = categoryEnable[tableName] || false;

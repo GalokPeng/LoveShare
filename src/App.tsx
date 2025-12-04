@@ -8,6 +8,7 @@ import { TableProvider } from "./contexts/TableContext";
 import TableView from "./components/features/TableView";
 import CardView from "./components/features/CardView";
 import NavigationCardView from "./components/features/NavigationCardView";
+import VideoOnline from "./components/features/VideoOnline";
 import SearchBar from "./components/common/SearchBar";
 import Home from "./pages/Home";
 import {
@@ -488,8 +489,12 @@ function Page() {
 function Content() {
   const { selectedTable } = useTableContext();
 
-  // 当选中的表是home（主页）或navigation时，渲染Home组件，否则渲染Page组件
-  return selectedTable === "home" ? <Home /> : <Page />;
+  // 当选中的表是home（主页）时，渲染Home组件
+  // 当选中的表是video-online（在线观影）时，渲染VideoOnline组件
+  // 否则渲染Page组件
+  if (selectedTable === "home") return <Home />;
+  if (selectedTable === "video-online") return <VideoOnline />;
+  return <Page />;
 }
 
 // 使用 Layout 组件包裹 Content 组件

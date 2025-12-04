@@ -59,6 +59,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             flex: 1,
             p: { xs: 2, md: 4 },
             overflowY: "auto",
+            overflowX: "hidden",
             margin: { xs: 1, md: 2 },
             borderRadius: 2,
             boxShadow: 2,
@@ -69,7 +70,17 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             transition:
               "background-color var(--theme-transition-duration) ease, border-color var(--theme-transition-duration) ease",
             minWidth: 0, // 确保内容能正确收缩
-            overflow: "hidden",
+            // 隐藏滚动条但保持滚动功能
+            "&::-webkit-scrollbar": {
+              width: 0,
+            },
+            "&::-webkit-scrollbar-track": {
+              background: "transparent",
+            },
+            "&::-webkit-scrollbar-thumb": {
+              background: "transparent",
+            },
+            scrollbarWidth: "none",
           }}
           elevation={3}
         >

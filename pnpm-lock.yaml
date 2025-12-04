@@ -53,9 +53,15 @@ importers:
       '@tanstack/react-query-persist-client':
         specifier: ^5.90.13
         version: 5.90.13(@tanstack/react-query@5.90.11(react@19.2.0))(react@19.2.0)
+      '@types/hls.js':
+        specifier: ^1.0.0
+        version: 1.0.0
       '@vercel/analytics':
         specifier: ^1.6.1
         version: 1.6.1(react@19.2.0)
+      hls.js:
+        specifier: ^1.6.15
+        version: 1.6.15
       react:
         specifier: ^19.2.0
         version: 19.2.0
@@ -721,6 +727,10 @@ packages:
   '@types/estree@1.0.8':
     resolution: {integrity: sha512-dWHzHa2WqEXI/O1E9OjrocMTKJl2mSrEolh1Iomrv6U+JuNwaHXsXx9bLu5gG7BUWFIN0skIQJQ/L1rIex4X6w==}
 
+  '@types/hls.js@1.0.0':
+    resolution: {integrity: sha512-EGY2QJefX+Z9XH4PAxI7RFoNqBlQEk16UpYR3kbr82CIgMX5SlMe0PjFdFV0JytRhyVPQCiwSyONuI6S1KdSag==}
+    deprecated: This is a stub types definition. hls.js provides its own type definitions, so you do not need this installed.
+
   '@types/json-schema@7.0.15':
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
 
@@ -1106,6 +1116,9 @@ packages:
 
   hermes-parser@0.25.1:
     resolution: {integrity: sha512-6pEjquH3rqaI6cYAXYPcz9MS4rY6R4ngRgrgfDshRptUZIc3lw0MCIJIGDj9++mfySOuPTHB4nrSW99BCvOPIA==}
+
+  hls.js@1.6.15:
+    resolution: {integrity: sha512-E3a5VwgXimGHwpRGV+WxRTKeSp2DW5DI5MWv34ulL3t5UNmyJWCQ1KmLEHbYzcfThfXG8amBL+fCYPneGHC4VA==}
 
   hoist-non-react-statics@3.3.2:
     resolution: {integrity: sha512-/gGivxi8JPKWNm/W0jSmzcMPpfpPLc3dY/6GxhX2hQ9iGj3aDfklV4ET7NjKpSinLpJ5vafa9iiGIEZg10SfBw==}
@@ -2296,6 +2309,10 @@ snapshots:
 
   '@types/estree@1.0.8': {}
 
+  '@types/hls.js@1.0.0':
+    dependencies:
+      hls.js: 1.6.15
+
   '@types/json-schema@7.0.15': {}
 
   '@types/node@24.10.1':
@@ -2692,6 +2709,8 @@ snapshots:
   hermes-parser@0.25.1:
     dependencies:
       hermes-estree: 0.25.1
+
+  hls.js@1.6.15: {}
 
   hoist-non-react-statics@3.3.2:
     dependencies:
