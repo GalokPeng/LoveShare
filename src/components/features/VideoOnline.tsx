@@ -155,7 +155,7 @@ const VideoOnline: React.FC = () => {
           placeholder="输入你想看的..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          sx={{ flex: 1, minWidth: 300 }}
+          sx={{ flex: 1, minWidth: 200 }}
         />
         <Button
           variant="contained"
