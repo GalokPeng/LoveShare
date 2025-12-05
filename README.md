@@ -31,6 +31,11 @@ Love Share 是一个基于 React + TypeScript + Vite 构建的现代化数据展
 - 💪 **类型安全**: 全面的 TypeScript 支持
 - 📱 **响应式设计**: 适配各种屏幕尺寸
 
+## 规划中
+
+- 🔒 **数据管理**: 计划支持数据增删改查，markdown 编辑文章，支持详细视图（必须）
+- 🔑 **用户认证**: 计划添加用户登录和注册功能（可能）
+
 ## 项目结构
 
 ```
@@ -123,8 +128,6 @@ yarn dev
 
 ```bash
 pnpm build
-# 或使用 npm
-npm run build
 # 或使用 yarn
 yarn build
 ```
@@ -133,120 +136,9 @@ yarn build
 
 ```bash
 pnpm preview
-# 或使用 npm
-npm run preview
 # 或使用 yarn
 yarn preview
 ```
-
-## 主要功能
-
-### 1. 表格视图
-
-- 支持自定义列显示
-- 支持单元格内容缩略显示
-- 支持链接自动识别和跳转
-- 支持响应式设计
-
-### 2. 卡片视图
-
-- 支持自定义卡片布局
-- 支持图片显示
-- 支持响应式设计
-
-### 3. 导航卡片视图
-
-- 专门为导航数据设计的卡片视图
-- 支持图标和链接
-
-### 4. 搜索功能
-
-- 支持多字段搜索
-- 支持实时搜索
-- 支持搜索提示
-
-### 5. 分页功能
-
-- 支持自定义每页显示数量
-- 支持快速跳转页码
-- 支持显示总条数
-
-### 6. 分类筛选
-
-- 支持按分类筛选数据
-- 支持多级分类
-
-### 7. 主题切换
-
-- 支持浅色/深色主题切换
-- 支持系统主题自动检测
-
-## 配置说明
-
-### 环境变量
-
-| 变量名                                | 说明              | 示例                                    |
-| ------------------------------------- | ----------------- | --------------------------------------- |
-| VITE_SYSTEM_NAME                      | 系统名称          | Love Share                              |
-| VITE_HOME_INTRO                       | 主页介绍          | 这是一个现代化数据展示平台...           |
-| VITE_HOME_FOOTER                      | 页脚信息          | © 2025 Love Share                       |
-| VITE_SUPABASE_URL                     | Supabase 项目 URL | https://example.supabase.co             |
-| VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY | Supabase 匿名密钥 | eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9... |
-| VITE_SUPABASE_PAGE_SIZE               | 每页显示数量      | 8                                       |
-| VITE_SUPABASE_TABLE_DIC               | 表配置            | {"table1":{"show_name":"表 1"}}         |
-| VITE_SUPABASE_TABLE_CATEGORY_COL      | 分类列配置        | {"table1":"category"}                   |
-| VITE_SUPABASE_TABLE_CATEGORY_ENABLE   | 分类启用配置      | {"table1":true}                         |
-| VITE_SUPABASE_TABLE_SHOW_COL_THUMB    | 缩略显示字段配置  | {"table1":["url"]}                      |
-| VITE_SUPABASE_TABLE_SHOW_VIEWS        | 视图配置          | {"table1":["table","card"]}             |
-| VITE_SUPABASE_TABLE_DEFAULT_SEARCH    | 搜索配置          | {"table1":["name","description"]}       |
-
-## 开发指南
-
-### 代码规范
-
-项目使用 ESLint 和 TypeScript ESLint 进行代码规范检查，运行以下命令检查代码：
-
-```bash
-pnpm lint
-# 或使用 npm
-npm run lint
-```
-
-### 类型检查
-
-运行以下命令进行 TypeScript 类型检查：
-
-```bash
-pnpm typecheck
-# 或使用 npm
-npm run typecheck
-```
-
-## 项目构建
-
-项目使用 Vite (基于 rolldown-vite) 作为构建工具，支持快速开发和生产构建。
-
-### 构建脚本
-
-```bash
-# 开发模式
-pnpm dev
-
-# 生产构建
-pnpm build
-
-# 预览生产构建
-pnpm preview
-```
-
-### 构建流程
-
-1. TypeScript 类型检查
-2. 代码编译和打包
-3. 静态资源优化
-4. 生成生产版本
-
-构建输出目录为 `dist/`，包含优化后的 HTML、CSS 和 JavaScript 文件。
 
 ## Supabase 导航栏表创建
 
@@ -298,7 +190,7 @@ CREATE POLICY "Allow anon select" ON public.navigation FOR SELECT TO anon USING 
 
 ## 许可证
 
-MIT
+[MIT License](https://github.com/GalokPeng/LoveShare?tab=MIT-1-ov-file#readme)
 
 ## 贡献
 
@@ -306,14 +198,14 @@ MIT
 
 ## Star 趋势
 
-[![Star History Chart](https://api.star-history.com/svg?repos=<your-github-username>/love_share&type=Date)](https://star-history.com/#<your-github-username>/love_share&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=galokpeng/LoveShare&type=Date)](https://star-history.com/#galokpeng/LoveShare&Date)
 
 ## 反馈
 
 欢迎提交问题和反馈！您可以通过以下方式联系我们：
 
-- [提交 Issue](https://github.com/<your-github-username>/love_share/issues)
-- [发送邮件](mailto:<your-email>)
+- [提交 Issue](https://github.com/galokpeng/LoveShare/issues)
+- [发送邮件](mailto:galokpeng@gmail.com)
 
 ## 致谢
 
