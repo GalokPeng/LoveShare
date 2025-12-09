@@ -32,7 +32,7 @@ persistQueryClient({
   queryClient,
   persister,
   maxAge: parseInt(import.meta.env.VITE_CACHE_DURATION || "3600") * 1000 * 24, // 缓存最大年龄
-  buster: "v1", // 缓存版本号，更改时会清除旧缓存
+  buster: import.meta.env.VITE_CACHE_VERSION || "v1", // 缓存版本号，更改时会清除旧缓存
 });
 
 createRoot(document.getElementById("root")!).render(
