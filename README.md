@@ -35,7 +35,7 @@ Love Share 是一个基于 React + TypeScript + Vite 构建的现代化数据展
   Secret keys 获取方式: dashboard --> project setting --> API keys
   认证通过后会显示在界面显示这些操作
   
-  ![admin][https://github.com/GalokPeng/LoveShare/blob/27cfaf98f4cc37fd1e0aa542f43179ec3a4dda9c/public/add_admin.png]
+  ![admin](https://github.com/GalokPeng/LoveShare/blob/27cfaf98f4cc37fd1e0aa542f43179ec3a4dda9c/public/add_admin.png)
 
 ## 规划中
 
