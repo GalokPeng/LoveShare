@@ -27,8 +27,19 @@ export default async function handler(req, res) {
   }
 
   try {
-    // 从URL参数获取table参数
-    const tableName = req.query.table;
+    // 从URL参数获取table参数 - 支持Vercel动态路由和本地开发
+    let tableName = req.query.table;
+
+    // 检查是否从路由参数获取（对于某些部署环境）
+    if (!tableName && req.params && req.params.table) {
+      tableName = req.params.table;
+    }
+
+    // 检查是否从URL路径获取（直接匹配）
+    if (!tableName) {
+      const urlPath = req.url.split("/");
+      tableName = urlPath[urlPath.length - 1];
+    }
 
     if (!tableName) {
       return res.status(400).json({ error: "Missing table parameter" });
