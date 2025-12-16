@@ -20,10 +20,10 @@ export default async function handler(req: any, res: any) {
   }
 
   try {
-    // 1. 服务端读取 Vercel 环境变量（不再用 import.meta.env，改用 process.env）
-    const supabaseUrl = process.env.SUPABASE_URL;
-    const supabaseKey = process.env.SUPABASE_PUBLISHABLE_DEFAULT_KEY;
-    const cacheDuration = parseInt(process.env.CACHE_DURATION || "3600");
+    // 1. 服务端读取 Vercel 环境变量（同时支持带 VITE_ 前缀和不带 VITE_ 前缀的环境变量）
+    const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+    const supabaseKey = process.env.SUPABASE_PUBLISHABLE_DEFAULT_KEY || process.env.VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY;
+    const cacheDuration = parseInt(process.env.CACHE_DURATION || process.env.VITE_CACHE_DURATION || "3600");
 
     // 校验配置
     if (!supabaseUrl || !supabaseKey) {
