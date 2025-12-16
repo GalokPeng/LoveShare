@@ -31,8 +31,19 @@ export default async function handler(req: Request) {
 
     // 3. 解析请求参数
     const { method, url } = req;
-    // 在 Vercel 边缘函数中，req.url 只包含路径和查询参数，需要使用 URLSearchParams 来解析
-    const searchParams = new URLSearchParams(url.split("?")[1] || "");
+    // 在 Vercel Node.js 运行时中，req.url 是完整的 URL
+    // 在 Vercel 边缘函数中，req.url 只包含路径和查询参数
+    // 使用 URL 对象来可靠地解析查询参数
+    let searchParams;
+    try {
+      // 尝试解析完整 URL
+      const urlObj = new URL(url);
+      searchParams = urlObj.searchParams;
+    } catch {
+      // 如果解析失败，尝试解析路径和查询参数
+      const queryString = url.split("?")[1] || "";
+      searchParams = new URLSearchParams(queryString);
+    }
     const tableName = searchParams.get("table") || "";
     const select = searchParams.get("select") || "*";
     const eq = searchParams.get("eq") || "";
