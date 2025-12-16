@@ -103,19 +103,9 @@ const Sidebar: React.FC<SidebarProps> = ({
           const categoryColumn = categoryCol[tableName];
           if (categoryColumn) {
             try {
-              // 查询所有分类值，然后在客户端去重
-              const { data, error } = await supabase
-                .from(tableName + "_" + categoryColumn)
-                .select(categoryColumn);
-              console.log(data);
-              if (error) {
-                console.error(
-                  `Failed to fetch categories for ${tableName}:`,
-                  error
-                );
-                continue;
-              }
-
+              // 使用新的 getCategories 方法获取分类数据
+              const data = await supabase.getCategories(tableName, categoryColumn);
+              
               if (data) {
                 // 提取分类值并去重，添加类型断言
                 const categoryValues = Array.from(

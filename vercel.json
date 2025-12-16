@@ -14,6 +14,14 @@
       "use": "@vercel/node"
     },
     {
+      "src": "api/supabase/query.ts",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "api/supabase/navigation.ts",
+      "use": "@vercel/node"
+    },
+    {
       "src": "package.json",
       "use": "@vercel/static-build",
       "config": {
@@ -33,6 +41,14 @@
     {
       "src": "/api/data/(?<table>[^/]+)",
       "dest": "/api/data/[table].js"
+    },
+    {
+      "src": "/api/supabase/query",
+      "dest": "/api/supabase/query.ts"
+    },
+    {
+      "src": "/api/supabase/navigation",
+      "dest": "/api/supabase/navigation.ts"
     },
     {
       "src": "/(.*)",
