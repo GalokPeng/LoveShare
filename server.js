@@ -351,61 +351,6 @@ app.get("/api/supabase/query", async (req, res) => {
   }
 });
 
-// 添加 /api/supabase/navigation 路由处理程序
-app.get("/api/supabase/navigation", async (req, res) => {
-  try {
-    // 1. 服务端读取环境变量
-    const supabaseUrl =
-      process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
-    const supabaseKey =
-      process.env.VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY ||
-      process.env.SUPABASE_PUBLISHABLE_DEFAULT_KEY;
-    const cacheDuration = parseInt(
-      process.env.VITE_CACHE_DURATION || process.env.CACHE_DURATION || "3600"
-    );
-
-    // 校验配置
-    if (!supabaseUrl || !supabaseKey) {
-      return res.status(500).json({ error: "Supabase 配置缺失" });
-    }
-
-    // 2. 服务端初始化 Supabase 客户端
-    const supabase = createClient(supabaseUrl, supabaseKey, {
-      global: {
-        headers: {
-          "Cache-Control": `s-maxage=${cacheDuration}, stale-while-revalidate=${
-            cacheDuration * 2
-          }`,
-          "Vercel-CDN-Cache-Control": `s-maxage=${cacheDuration}, stale-while-revalidate=${
-            cacheDuration * 2
-          }`,
-        },
-      },
-    });
-
-    // 3. 执行查询
-    const { data, error } = await supabase.from("navigation").select("*");
-
-    if (error) throw error;
-
-    // 4. 设置缓存头
-    res.setHeader(
-      "Cache-Control",
-      `s-maxage=${cacheDuration}, stale-while-revalidate=${cacheDuration * 2}`
-    );
-    res.setHeader(
-      "Vercel-CDN-Cache-Control",
-      `s-maxage=${cacheDuration}, stale-while-revalidate=${cacheDuration * 2}`
-    );
-
-    // 5. 返回数据给前端
-    return res.status(200).json(data);
-  } catch (err) {
-    console.error("API 请求失败:", err);
-    return res.status(500).json({ error: err.message });
-  }
-});
-
 // 所有其他请求都返回index.html
 app.use((req, res) => {
   res.sendFile(join(__dirname, "dist", "index.html"));
