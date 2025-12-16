@@ -40,6 +40,9 @@ Secret keys 获取方式: dashboard --> project setting --> API keys
 
 ### 2. 将.env.example 直接导入 vercel 环境变量
 
+- 修改 VITE_SUPABASE_URL 变量值 对应 Supabase 个人 API
+- 修改 VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY 变量值 对应 Supabase 个人 API Public Keys
+
 ## 技术栈
 
 ### 前端
