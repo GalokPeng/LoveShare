@@ -9,6 +9,10 @@ export default async function handler(req: Request) {
 
     // 校验配置
     if (!supabaseUrl || !supabaseKey) {
+      console.error("Supabase 配置缺失:", {
+        supabaseUrl: !!supabaseUrl,
+        supabaseKey: !!supabaseKey,
+      });
       return new Response(JSON.stringify({ error: "Supabase 配置缺失" }), {
         status: 500,
         headers: { "Content-Type": "application/json" },
@@ -31,6 +35,8 @@ export default async function handler(req: Request) {
 
     // 3. 解析请求参数
     const { method, url } = req;
+    console.log("收到请求:", { method, url });
+
     // 在 Vercel Node.js 运行时中，req.url 是完整的 URL
     // 在 Vercel 边缘函数中，req.url 只包含路径和查询参数
     // 使用 URL 对象来可靠地解析查询参数
@@ -39,11 +45,14 @@ export default async function handler(req: Request) {
       // 尝试解析完整 URL
       const urlObj = new URL(url);
       searchParams = urlObj.searchParams;
-    } catch {
+      console.log("使用完整 URL 解析成功");
+    } catch (e) {
       // 如果解析失败，尝试解析路径和查询参数
       const queryString = url.split("?")[1] || "";
       searchParams = new URLSearchParams(queryString);
+      console.log("使用路径解析成功");
     }
+
     const tableName = searchParams.get("table") || "";
     const select = searchParams.get("select") || "*";
     const eq = searchParams.get("eq") || "";
@@ -54,52 +63,99 @@ export default async function handler(req: Request) {
     const or = searchParams.get("or") || "";
     const categoryTable = searchParams.get("categoryTable") || "";
 
+    console.log("解析到的查询参数:", {
+      tableName,
+      categoryTable,
+      select,
+      eq,
+      eqValue,
+      count,
+      rangeStart,
+      rangeEnd,
+      or,
+    });
+
     // 4. 构建查询
+    const targetTable = tableName || categoryTable;
+    if (!targetTable) {
+      console.error("表名不能为空");
+      return new Response(JSON.stringify({ error: "表名不能为空" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
     let queryBuilder: any = supabase
-      .from(tableName || categoryTable)
+      .from(targetTable)
       .select(select, count ? { count: count as "exact" } : {});
+    console.log("查询构建完成，表名:", targetTable);
 
     // 添加等于过滤
     if (eq && eqValue) {
       queryBuilder = queryBuilder.eq(eq, eqValue);
+      console.log("添加等于过滤:", { eq, eqValue });
     }
 
     // 添加 OR 过滤
     if (or) {
       queryBuilder = queryBuilder.or(or);
+      console.log("添加 OR 过滤:", or);
     }
 
     // 添加范围过滤（分页）
     if (rangeStart !== null && rangeEnd !== null) {
-      queryBuilder = queryBuilder.range(
-        parseInt(rangeStart),
-        parseInt(rangeEnd)
-      );
+      const start = parseInt(rangeStart);
+      const end = parseInt(rangeEnd);
+      queryBuilder = queryBuilder.range(start, end);
+      console.log("添加范围过滤:", { start, end });
     }
 
     // 5. 执行查询
+    console.log("开始执行查询...");
     const { data, error, count: resultCount } = await queryBuilder;
+    console.log("查询执行完成:", {
+      dataLength: data ? data.length : 0,
+      hasError: !!error,
+      count: resultCount,
+    });
 
-    if (error) throw error;
+    if (error) {
+      console.error("查询执行错误:", error);
+      throw error;
+    }
 
     // 6. 返回数据给前端
-    return new Response(JSON.stringify({ data, count: resultCount }), {
-      status: 200,
-      headers: {
-        "Content-Type": "application/json",
-        // 透传缓存头（和你原逻辑一致）
-        "Cache-Control": `s-maxage=${cacheDuration}, stale-while-revalidate=${
-          cacheDuration * 2
-        }`,
-        "Vercel-CDN-Cache-Control": `s-maxage=${cacheDuration}, stale-while-revalidate=${
-          cacheDuration * 2
-        }`,
-      },
-    });
+    console.log("准备返回响应...");
+    const response = new Response(
+      JSON.stringify({ data, count: resultCount }),
+      {
+        status: 200,
+        headers: {
+          "Content-Type": "application/json",
+          // 透传缓存头（和你原逻辑一致）
+          "Cache-Control": `s-maxage=${cacheDuration}, stale-while-revalidate=${
+            cacheDuration * 2
+          }`,
+          "Vercel-CDN-Cache-Control": `s-maxage=${cacheDuration}, stale-while-revalidate=${
+            cacheDuration * 2
+          }`,
+        },
+      }
+    );
+
+    console.log("响应已返回");
+    return response;
   } catch (err: any) {
-    return new Response(JSON.stringify({ error: err.message }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
+    console.error("处理请求时发生错误:", err);
+    return new Response(
+      JSON.stringify({
+        error: err.message,
+        stack: process.env.NODE_ENV === "development" ? err.stack : undefined,
+      }),
+      {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
   }
 }
