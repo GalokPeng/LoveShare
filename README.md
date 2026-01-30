@@ -25,11 +25,6 @@ Secret keys 获取方式: dashboard --> project setting --> API keys
 
 ![admin](https://github.com/GalokPeng/LoveShare/blob/27cfaf98f4cc37fd1e0aa542f43179ec3a4dda9c/public/add_admin.png)
 
-## 规划中
-
-- 🔒 **文章相关**: markdown 编辑文章（必须）
-- 🔑 **用户认证**: 计划添加用户登录和注册功能（可能）
-
 ## 快速体验
 
 ### 0. 创建 Supabase 账号并运行 SQL （下方：Supabase 导航栏表创建）

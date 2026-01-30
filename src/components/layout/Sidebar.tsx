@@ -55,7 +55,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   const [tableDic, setTableDic] = useState<TableDic>({});
   const [categoryCol, setCategoryCol] = useState<CategoryConfig>({});
   const [categoryEnable, setCategoryEnable] = useState<CategoryEnableConfig>(
-    {}
+    {},
   );
   const [expandedTable, setExpandedTable] = useState<string | null>(null);
   const muiTheme = useTheme();
@@ -104,23 +104,26 @@ const Sidebar: React.FC<SidebarProps> = ({
           if (categoryColumn) {
             try {
               // 使用新的 getCategories 方法获取分类数据
-              const data = await supabase.getCategories(tableName, categoryColumn);
-              
+              const data = await supabase.getCategories(
+                tableName,
+                categoryColumn,
+              );
+
               if (data) {
                 // 提取分类值并去重，添加类型断言
                 const categoryValues = Array.from(
                   new Set(
                     data
                       .map((item: any) => String(item[categoryColumn]))
-                      .filter(Boolean)
-                  )
+                      .filter(Boolean),
+                  ),
                 ) as string[];
                 newCategories[tableName] = categoryValues;
               }
             } catch (error) {
               console.error(
                 `Error fetching categories for ${tableName}:`,
-                error
+                error,
               );
             }
           }
@@ -160,15 +163,15 @@ const Sidebar: React.FC<SidebarProps> = ({
           width: isMobile
             ? drawerWidth
             : isOpen
-            ? drawerWidth
-            : collapsedDrawerWidth,
+              ? drawerWidth
+              : collapsedDrawerWidth,
           flexShrink: 0,
           "& .MuiDrawer-paper": {
             width: isMobile
               ? drawerWidth
               : isOpen
-              ? drawerWidth
-              : collapsedDrawerWidth,
+                ? drawerWidth
+                : collapsedDrawerWidth,
             boxSizing: "border-box",
             transition:
               "width 0.5s ease, background-color var(--theme-transition-duration) ease, border-color var(--theme-transition-duration) ease, box-shadow var(--theme-transition-duration) ease",
@@ -277,49 +280,6 @@ const Sidebar: React.FC<SidebarProps> = ({
                     fontWeight: selectedTable === "home" ? 600 : 400,
                     color:
                       selectedTable === "home"
-                        ? "primary.main"
-                        : "text.primary",
-                    fontSize: isOpen ? "0.95rem" : "0.7rem",
-                    textAlign: "center",
-                    lineHeight: 1.2,
-                    letterSpacing: "-0.02em",
-                  },
-                }}
-              />
-            </ListItemButton>
-          </ListItem>
-
-          {/* 在线观影菜单项 */}
-          <ListItem disablePadding sx={{ display: "block" }}>
-            <ListItemButton
-              selected={selectedTable === "video-online"}
-              onClick={() => handleListItemClick("video-online", null)}
-              sx={{
-                minHeight: 48,
-                justifyContent: isOpen ? "space-between" : "center",
-                px: isOpen ? 2.5 : 1,
-                borderRadius: isOpen ? "8px" : "12px",
-                margin: "4px 8px",
-                "&.Mui-selected": {
-                  backgroundColor: muiTheme.palette.action.selected,
-                  "&:hover": {
-                    backgroundColor: muiTheme.palette.action.hover,
-                  },
-                },
-                "&:hover": {
-                  backgroundColor: muiTheme.palette.action.hover,
-                },
-                transition: "all var(--theme-transition-duration) ease",
-              }}
-            >
-              <ListItemText
-                primary={isOpen ? "在线观影" : "在线观影".slice(0, 2)}
-                primaryTypographyProps={{
-                  noWrap: true,
-                  sx: {
-                    fontWeight: selectedTable === "video-online" ? 600 : 400,
-                    color:
-                      selectedTable === "video-online"
                         ? "primary.main"
                         : "text.primary",
                     fontSize: isOpen ? "0.95rem" : "0.7rem",

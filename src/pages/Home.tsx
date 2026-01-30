@@ -61,7 +61,7 @@ const Home: React.FC = () => {
             }}
           >
             <img
-              src="/wechat_official.jpg"
+              src="/logo.png"
               alt="wechat qrcode"
               style={{ width: "239px" }}
             />
