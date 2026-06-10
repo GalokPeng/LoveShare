@@ -4,7 +4,7 @@ import { Box, Typography, Container, Paper, useTheme } from "@mui/material";
 const Home: React.FC = () => {
   const theme = useTheme();
 
-  // 从环境变量获取配置
+  // 系统名称
   const systemName = import.meta.env.VITE_SYSTEM_NAME;
   const homeIntro = import.meta.env.VITE_HOME_INTRO;
   const homeFooter = import.meta.env.VITE_HOME_FOOTER;
@@ -66,7 +66,7 @@ const Home: React.FC = () => {
               style={{ width: "239px" }}
             />
           </Box>
-          {/* 系统介绍 */}
+          {/* 系统简介 */}
           <Typography
             variant="body1"
             sx={{
