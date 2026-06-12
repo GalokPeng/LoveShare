@@ -79,8 +79,6 @@ interface VideoSource {
 
 interface SearchHistoryItem {
   keyword: string;
-  sourceId: string;
-  sourceName: string;
   searchedAt: number;
 }
 
@@ -593,18 +591,13 @@ const VideoOnline: React.FC = () => {
     (keyword: string, source: VideoSource) => {
       const nextItem: SearchHistoryItem = {
         keyword,
-        sourceId: source.id,
-        sourceName: source.name,
         searchedAt: Date.now(),
       };
 
       setSearchHistory((previousHistory) => {
         const nextHistory = [
           nextItem,
-          ...previousHistory.filter(
-            (item) =>
-              item.keyword !== keyword.trim() || item.sourceId !== source.id,
-          ),
+          ...previousHistory.filter((item) => item.keyword !== keyword.trim()),
         ].slice(0, MAX_SEARCH_HISTORY);
 
         writeStorageArray(SEARCH_HISTORY_STORAGE_KEY, nextHistory);
@@ -1256,12 +1249,8 @@ const VideoOnline: React.FC = () => {
                   <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
                     {searchHistory.map((item) => (
                       <Chip
-                        key={`${item.sourceId}-${item.keyword}-${item.searchedAt}`}
-                        label={
-                          item.sourceId === selectedSource.id
-                            ? item.keyword
-                            : `${item.keyword} · ${item.sourceName}`
-                        }
+                        key={`${item.keyword}-${item.searchedAt}`}
+                        label={item.keyword}
                         size="small"
                         variant="outlined"
                         onClick={() => handleHistoryClick(item)}
