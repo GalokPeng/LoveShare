@@ -268,6 +268,17 @@ const buildSearchUrl = (source: VideoSource, keyword: string) => {
   return `${source.searchUrl}${encodedKeyword}`;
 };
 
+// 外部 URL 自动走通用代理，避免跨域问题
+const proxyUrl = (url: string) => {
+  if (!url || url.startsWith("/")) return url;
+  try {
+    new URL(url);
+    return `/api/proxy?url=${encodeURIComponent(url)}`;
+  } catch {
+    return url;
+  }
+};
+
 const parsePlayUrl = (playUrl: string): VideoEpisode[] => {
   if (!playUrl) return [];
 
@@ -388,7 +399,7 @@ const getProgressPercent = (record: ProgressRecord) => {
 };
 
 const fetchVideosFromSource = async (source: VideoSource, keyword: string) => {
-  const response = await fetch(buildSearchUrl(source, keyword));
+  const response = await fetch(proxyUrl(buildSearchUrl(source, keyword)));
   if (!response.ok) {
     throw new Error(`API returned ${response.status}`);
   }
@@ -694,7 +705,12 @@ const VideoOnline: React.FC = () => {
     setProgressRecords((previousRecords) => {
       const nextRecords = [
         record,
-        ...previousRecords.filter((item) => item.id !== record.id),
+        ...previousRecords.filter(
+          (item) =>
+            item.id !== record.id &&
+            normalizeComparableText(item.videoName) !==
+              normalizeComparableText(record.videoName),
+        ),
       ].slice(0, MAX_PROGRESS_RECORDS);
 
       writeStorageArray(PROGRESS_STORAGE_KEY, nextRecords);
@@ -935,25 +951,58 @@ const VideoOnline: React.FC = () => {
   );
 
   const handleContinueWatching = useCallback(
-    (record: ProgressRecord) => {
+    async (record: ProgressRecord) => {
       const source =
         VIDEO_SOURCES.find((candidate) => candidate.id === record.sourceId) ||
         selectedSource;
-      const episode = {
-        name: record.episodeName,
-        url: record.episodeUrl,
-      };
-      const video: VideoItem = {
-        vod_name: record.videoName,
-        vod_pic: record.poster,
-        vod_play_url: "",
-        sourceId: record.sourceId,
-        sourceName: record.sourceName || source.name,
-        episodes: [episode],
-      };
 
       setSelectedSourceId(source.id);
-      playVideo(episode, video);
+      setIsSearching(true);
+      setError("");
+
+      try {
+        const videos = (
+          await fetchVideosFromSource(source, record.videoName)
+        ).slice(0, 12);
+        const matchedVideo = findMatchingVideo(videos, {
+          vod_name: record.videoName,
+        } as VideoItem);
+
+        if (!matchedVideo || matchedVideo.episodes.length === 0) {
+          throw new Error("No matching video found");
+        }
+
+        // 在采集到的集数列表中查找对应的集
+        let targetEpisode = matchedVideo.episodes.find(
+          (ep) => ep.url === record.episodeUrl,
+        );
+        if (!targetEpisode) {
+          // URL 不匹配时按名称模糊匹配
+          targetEpisode = matchedVideo.episodes.find((ep) =>
+            normalizeComparableText(ep.name).includes(
+              normalizeComparableText(record.episodeName),
+            ),
+          );
+        }
+        if (!targetEpisode) {
+          targetEpisode = matchedVideo.episodes[0];
+        }
+
+        setHasSearched(true);
+        setVideoList(videos);
+        playVideo(targetEpisode, matchedVideo, {
+          resumeTime: record.currentTime,
+          notice:
+            record.currentTime >= MIN_RESUME_SECONDS
+              ? `已从 ${formatTime(record.currentTime)} 继续播放`
+              : "",
+        });
+      } catch (error) {
+        console.error("Continue watching error:", error);
+        setError("加载观看记录失败，请尝试手动搜索。");
+      } finally {
+        setIsSearching(false);
+      }
     },
     [playVideo, selectedSource],
   );
