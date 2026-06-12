@@ -309,7 +309,7 @@ const fetchVideosFromSource = async (source: VideoSource, keyword: string) => {
           throw new Error("Empty direct API response");
         }
         return videos;
-      } catch (directError) {
+      } catch {
         // 直接请求也失败，抛出原始 proxy 错误
         throw proxyError instanceof Error
           ? proxyError
