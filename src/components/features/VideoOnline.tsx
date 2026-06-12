@@ -587,25 +587,22 @@ const VideoOnline: React.FC = () => {
     }
   }, []);
 
-  const addSearchHistory = useCallback(
-    (keyword: string, source: VideoSource) => {
-      const nextItem: SearchHistoryItem = {
-        keyword,
-        searchedAt: Date.now(),
-      };
+  const addSearchHistory = useCallback((keyword: string) => {
+    const nextItem: SearchHistoryItem = {
+      keyword,
+      searchedAt: Date.now(),
+    };
 
-      setSearchHistory((previousHistory) => {
-        const nextHistory = [
-          nextItem,
-          ...previousHistory.filter((item) => item.keyword !== keyword.trim()),
-        ].slice(0, MAX_SEARCH_HISTORY);
+    setSearchHistory((previousHistory) => {
+      const nextHistory = [
+        nextItem,
+        ...previousHistory.filter((item) => item.keyword !== keyword.trim()),
+      ].slice(0, MAX_SEARCH_HISTORY);
 
-        writeStorageArray(SEARCH_HISTORY_STORAGE_KEY, nextHistory);
-        return nextHistory;
-      });
-    },
-    [],
-  );
+      writeStorageArray(SEARCH_HISTORY_STORAGE_KEY, nextHistory);
+      return nextHistory;
+    });
+  }, []);
 
   const playVideo = useCallback(
     (
@@ -885,7 +882,7 @@ const VideoOnline: React.FC = () => {
       setIsSearching(true);
       setHasSearched(true);
       setError("");
-      addSearchHistory(keyword, source);
+      addSearchHistory(keyword);
 
       try {
         setVideoList(
