@@ -279,6 +279,69 @@ const proxyUrl = (url: string) => {
   }
 };
 
+const fetchVideosFromSource = async (source: VideoSource, keyword: string) => {
+  const searchUrl = buildSearchUrl(source, keyword);
+  const isExternalUrl = !searchUrl.startsWith("/");
+
+  // 对外部 URL：先走 proxy，如果 proxy 失败则尝试直接请求（部分采集站支持 CORS）
+  if (isExternalUrl) {
+    try {
+      const proxiedUrl = `/api/proxy?url=${encodeURIComponent(searchUrl)}`;
+      const response = await fetch(proxiedUrl);
+      if (response.ok) {
+        const data: unknown = await response.json();
+        // 检查是否是 proxy 返回的错误格式
+        if (
+          isRecord(data) &&
+          data.error &&
+          !Array.isArray((data as Record<string, unknown>).list)
+        ) {
+          throw new Error(String(data.error));
+        }
+        const videos = normalizeVideoResponse(data, source);
+        if (videos.length > 0) return videos;
+        throw new Error("Empty API response via proxy");
+      }
+      throw new Error(`Proxy returned ${response.status}`);
+    } catch (proxyError) {
+      console.warn(
+        `[VideoOnline] Proxy failed for ${source.name}, trying direct request:`,
+        proxyError,
+      );
+      // proxy 失败，尝试直接请求
+      try {
+        const directResponse = await fetch(searchUrl);
+        if (!directResponse.ok) {
+          throw new Error(`Direct request returned ${directResponse.status}`);
+        }
+        const data: unknown = await directResponse.json();
+        const videos = normalizeVideoResponse(data, source);
+        if (videos.length === 0) {
+          throw new Error("Empty direct API response");
+        }
+        return videos;
+      } catch (directError) {
+        // 直接请求也失败，抛出原始 proxy 错误
+        throw proxyError instanceof Error
+          ? proxyError
+          : new Error(String(proxyError));
+      }
+    }
+  }
+
+  // 内部 URL 直接请求
+  const response = await fetch(searchUrl);
+  if (!response.ok) {
+    throw new Error(`API returned ${response.status}`);
+  }
+  const data: unknown = await response.json();
+  const videos = normalizeVideoResponse(data, source);
+  if (videos.length === 0) {
+    throw new Error("Empty API response");
+  }
+  return videos;
+};
+
 const parsePlayUrl = (playUrl: string): VideoEpisode[] => {
   if (!playUrl) return [];
 
@@ -396,21 +459,6 @@ const getProgressPercent = (record: ProgressRecord) => {
     100,
     Math.max(0, (record.currentTime / record.duration) * 100),
   );
-};
-
-const fetchVideosFromSource = async (source: VideoSource, keyword: string) => {
-  const response = await fetch(proxyUrl(buildSearchUrl(source, keyword)));
-  if (!response.ok) {
-    throw new Error(`API returned ${response.status}`);
-  }
-
-  const data: unknown = await response.json();
-  const videos = normalizeVideoResponse(data, source);
-  if (videos.length === 0) {
-    throw new Error("Empty API response");
-  }
-
-  return videos;
 };
 
 const normalizeComparableText = (value: string) =>
