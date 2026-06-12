@@ -116,7 +116,7 @@ const isRecord = (value: unknown): value is Record<string, unknown> =>
 const readString = (
   value: Record<string, unknown>,
   key: string,
-  fallback = ""
+  fallback = "",
 ) => {
   const rawValue = value[key];
   if (typeof rawValue === "string") return rawValue.trim();
@@ -177,10 +177,7 @@ const normalizeSourceId = (name: string, index: number) =>
     .replace(/[^a-z0-9\u4e00-\u9fa5]+/g, "-")
     .replace(/^-+|-+$/g, "") || `source-${index + 1}`;
 
-const normalizeSource = (
-  item: unknown,
-  index: number
-): VideoSource | null => {
+const normalizeSource = (item: unknown, index: number): VideoSource | null => {
   if (!isRecord(item)) return null;
 
   const searchUrl = readString(item, "url") || readString(item, "searchUrl");
@@ -302,7 +299,7 @@ const parsePlayUrl = (playUrl: string): VideoEpisode[] => {
 
 const normalizeVideoItem = (
   item: unknown,
-  source: VideoSource
+  source: VideoSource,
 ): VideoItem | null => {
   if (!isRecord(item)) return null;
 
@@ -330,13 +327,14 @@ const normalizeVideoItem = (
 
 const normalizeVideoResponse = (
   response: unknown,
-  source: VideoSource
+  source: VideoSource,
 ): VideoItem[] => {
-  const list = isRecord(response) && Array.isArray(response.list)
-    ? response.list
-    : Array.isArray(response)
-      ? response
-      : [];
+  const list =
+    isRecord(response) && Array.isArray(response.list)
+      ? response.list
+      : Array.isArray(response)
+        ? response
+        : [];
 
   return list
     .map((item) => normalizeVideoItem(item, source))
@@ -353,7 +351,7 @@ const formatTime = (seconds: number) => {
 
   if (hours > 0) {
     return `${hours}:${String(minutes).padStart(2, "0")}:${String(
-      nextSeconds
+      nextSeconds,
     ).padStart(2, "0")}`;
   }
 
@@ -378,18 +376,18 @@ const stripHtml = (value = "") =>
 const getProgressId = (
   sourceId: string,
   videoName: string,
-  episodeUrl: string
+  episodeUrl: string,
 ) => `${sourceId}::${videoName}::${episodeUrl}`;
 
 const getProgressPercent = (record: ProgressRecord) => {
   if (!record.duration || record.duration <= 0) return 0;
-  return Math.min(100, Math.max(0, (record.currentTime / record.duration) * 100));
+  return Math.min(
+    100,
+    Math.max(0, (record.currentTime / record.duration) * 100),
+  );
 };
 
-const fetchVideosFromSource = async (
-  source: VideoSource,
-  keyword: string
-) => {
+const fetchVideosFromSource = async (source: VideoSource, keyword: string) => {
   const response = await fetch(buildSearchUrl(source, keyword));
   if (!response.ok) {
     throw new Error(`API returned ${response.status}`);
@@ -412,7 +410,7 @@ const findMatchingVideo = (videos: VideoItem[], currentVideo: VideoItem) => {
 
   return (
     videos.find(
-      (video) => normalizeComparableText(video.vod_name) === currentName
+      (video) => normalizeComparableText(video.vod_name) === currentName,
     ) ||
     videos.find((video) => {
       const candidateName = normalizeComparableText(video.vod_name);
@@ -428,12 +426,12 @@ const findMatchingVideo = (videos: VideoItem[], currentVideo: VideoItem) => {
 const findMatchingEpisode = (
   video: VideoItem,
   currentEpisode: VideoEpisode | undefined,
-  currentEpisodeIndex: number
+  currentEpisodeIndex: number,
 ) => {
   if (currentEpisode) {
     const currentName = normalizeComparableText(currentEpisode.name);
     const sameNameEpisode = video.episodes.find(
-      (episode) => normalizeComparableText(episode.name) === currentName
+      (episode) => normalizeComparableText(episode.name) === currentName,
     );
     if (sameNameEpisode) return sameNameEpisode;
   }
@@ -454,13 +452,13 @@ const VideoOnline: React.FC = () => {
   const [searchHistory, setSearchHistory] = useState<SearchHistoryItem[]>(() =>
     readStorageArray<SearchHistoryItem>(SEARCH_HISTORY_STORAGE_KEY).slice(
       0,
-      MAX_SEARCH_HISTORY
-    )
+      MAX_SEARCH_HISTORY,
+    ),
   );
   const [progressRecords, setProgressRecords] = useState<ProgressRecord[]>(() =>
     readStorageArray<ProgressRecord>(PROGRESS_STORAGE_KEY)
       .sort((left, right) => right.updatedAt - left.updatedAt)
-      .slice(0, MAX_PROGRESS_RECORDS)
+      .slice(0, MAX_PROGRESS_RECORDS),
   );
   const [isSearching, setIsSearching] = useState(false);
   const [isSwitchingSource, setIsSwitchingSource] = useState(false);
@@ -477,23 +475,27 @@ const VideoOnline: React.FC = () => {
   const [isMuted, setIsMuted] = useState(false);
   const [playbackRate, setPlaybackRate] = useState(1);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [showControls, setShowControls] = useState(true);
   const playerContainerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const hlsRef = useRef<Hls | null>(null);
   const playbackRef = useRef<PlaybackContext | null>(null);
   const pendingResumeTimeRef = useRef<number | null>(null);
   const lastProgressSaveRef = useRef(0);
+  const controlsHideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
 
   const selectedSource = useMemo(
     () =>
       VIDEO_SOURCES.find((source) => source.id === selectedSourceId) ||
       DEFAULT_VIDEO_SOURCE,
-    [selectedSourceId]
+    [selectedSourceId],
   );
 
   const selectedVideoIntro = useMemo(
     () => stripHtml(selectedVideo?.vod_content).slice(0, 180),
-    [selectedVideo?.vod_content]
+    [selectedVideo?.vod_content],
   );
 
   const resetPlayback = useCallback(() => {
@@ -553,7 +555,7 @@ const VideoOnline: React.FC = () => {
           nextItem,
           ...previousHistory.filter(
             (item) =>
-              item.keyword !== keyword.trim() || item.sourceId !== source.id
+              item.keyword !== keyword.trim() || item.sourceId !== source.id,
           ),
         ].slice(0, MAX_SEARCH_HISTORY);
 
@@ -561,14 +563,14 @@ const VideoOnline: React.FC = () => {
         return nextHistory;
       });
     },
-    []
+    [],
   );
 
   const playVideo = useCallback(
     (
       episode: VideoEpisode,
       video: VideoItem,
-      options?: { resumeTime?: number; notice?: string }
+      options?: { resumeTime?: number; notice?: string },
     ) => {
       const videoElement = videoRef.current;
       if (!videoElement) return;
@@ -581,10 +583,10 @@ const VideoOnline: React.FC = () => {
       const progressId = getProgressId(
         video.sourceId,
         video.vod_name,
-        episode.url
+        episode.url,
       );
       const savedProgress = progressRecords.find(
-        (record) => record.id === progressId
+        (record) => record.id === progressId,
       );
       const resumeTime =
         options?.resumeTime !== undefined &&
@@ -594,9 +596,7 @@ const VideoOnline: React.FC = () => {
           : savedProgress?.currentTime;
 
       pendingResumeTimeRef.current =
-        resumeTime && resumeTime >= MIN_RESUME_SECONDS
-          ? resumeTime
-          : null;
+        resumeTime && resumeTime >= MIN_RESUME_SECONDS ? resumeTime : null;
       playbackRef.current = { video, episode };
       lastProgressSaveRef.current = 0;
 
@@ -608,7 +608,7 @@ const VideoOnline: React.FC = () => {
           ? options.notice
           : resumeTime && resumeTime >= MIN_RESUME_SECONDS
             ? `已找到上次进度 ${formatTime(resumeTime)}`
-          : ""
+            : "",
       );
 
       videoElement.pause();
@@ -651,7 +651,7 @@ const VideoOnline: React.FC = () => {
 
       setError("当前浏览器不支持 HLS 播放。");
     },
-    [applyResumePosition, isMuted, playbackRate, progressRecords, volume]
+    [applyResumePosition, isMuted, playbackRate, progressRecords, volume],
   );
 
   const saveCurrentProgress = useCallback((force = false) => {
@@ -678,7 +678,7 @@ const VideoOnline: React.FC = () => {
       id: getProgressId(
         playback.video.sourceId,
         playback.video.vod_name,
-        playback.episode.url
+        playback.episode.url,
       ),
       sourceId: playback.video.sourceId,
       sourceName: playback.video.sourceName,
@@ -707,10 +707,10 @@ const VideoOnline: React.FC = () => {
     if (!videoElement) return;
 
     setCurrentTime(
-      Number.isFinite(videoElement.currentTime) ? videoElement.currentTime : 0
+      Number.isFinite(videoElement.currentTime) ? videoElement.currentTime : 0,
     );
     setDuration(
-      Number.isFinite(videoElement.duration) ? videoElement.duration : 0
+      Number.isFinite(videoElement.duration) ? videoElement.duration : 0,
     );
   }, []);
 
@@ -739,7 +739,7 @@ const VideoOnline: React.FC = () => {
       Math.max(videoElement.currentTime + seconds, 0),
       Number.isFinite(videoElement.duration)
         ? videoElement.duration
-        : videoElement.currentTime + seconds
+        : videoElement.currentTime + seconds,
     );
 
     videoElement.currentTime = nextTime;
@@ -755,18 +755,21 @@ const VideoOnline: React.FC = () => {
     setCurrentTime(nextTime);
   }, []);
 
-  const handleVolumeChange = useCallback((_: Event, value: number | number[]) => {
-    const videoElement = videoRef.current;
-    const nextVolume = Array.isArray(value) ? value[0] : value;
+  const handleVolumeChange = useCallback(
+    (_: Event, value: number | number[]) => {
+      const videoElement = videoRef.current;
+      const nextVolume = Array.isArray(value) ? value[0] : value;
 
-    setVolume(nextVolume);
-    setIsMuted(nextVolume === 0);
+      setVolume(nextVolume);
+      setIsMuted(nextVolume === 0);
 
-    if (videoElement) {
-      videoElement.volume = nextVolume;
-      videoElement.muted = nextVolume === 0;
-    }
-  }, []);
+      if (videoElement) {
+        videoElement.volume = nextVolume;
+        videoElement.muted = nextVolume === 0;
+      }
+    },
+    [],
+  );
 
   const toggleMute = useCallback(() => {
     const videoElement = videoRef.current;
@@ -806,6 +809,24 @@ const VideoOnline: React.FC = () => {
     playerElement.requestFullscreen().catch(() => undefined);
   }, []);
 
+  const CONTROLS_HIDE_DELAY = 3000;
+
+  const startControlsHideTimer = useCallback(() => {
+    if (controlsHideTimerRef.current) {
+      clearTimeout(controlsHideTimerRef.current);
+    }
+    controlsHideTimerRef.current = setTimeout(() => {
+      if (isPlaying) {
+        setShowControls(false);
+      }
+    }, CONTROLS_HIDE_DELAY);
+  }, [isPlaying]);
+
+  const handlePlayerMouseMove = useCallback(() => {
+    setShowControls(true);
+    startControlsHideTimer();
+  }, [startControlsHideTimer]);
+
   const handleSearch = useCallback(
     async (keywordOverride?: string, sourceOverride?: VideoSource) => {
       const keyword = (keywordOverride ?? searchTerm).trim();
@@ -821,7 +842,9 @@ const VideoOnline: React.FC = () => {
       addSearchHistory(keyword, source);
 
       try {
-        setVideoList((await fetchVideosFromSource(source, keyword)).slice(0, 12));
+        setVideoList(
+          (await fetchVideosFromSource(source, keyword)).slice(0, 12),
+        );
         resetPlayback();
         setSelectedVideo(null);
         setSelectedEpisode("");
@@ -829,7 +852,7 @@ const VideoOnline: React.FC = () => {
         console.error("Search error:", error);
         const fallbackVideos = normalizeVideoResponse(
           defaultVideoData,
-          source
+          source,
         ).slice(0, 12);
 
         setError("接口请求失败，已临时展示本地备用片单。");
@@ -841,19 +864,14 @@ const VideoOnline: React.FC = () => {
         setIsSearching(false);
       }
     },
-    [
-      addSearchHistory,
-      resetPlayback,
-      saveCurrentProgress,
-      searchTerm,
-    ]
+    [addSearchHistory, resetPlayback, saveCurrentProgress, searchTerm],
   );
 
   const handleHistoryClick = useCallback(
     (item: SearchHistoryItem) => {
       void handleSearch(item.keyword, DEFAULT_VIDEO_SOURCE);
     },
-    [handleSearch]
+    [handleSearch],
   );
 
   const handleSwitchSource = useCallback(
@@ -863,14 +881,14 @@ const VideoOnline: React.FC = () => {
       const currentEpisode =
         playbackRef.current?.episode ||
         selectedVideo.episodes.find(
-          (episode) => episode.url === selectedEpisode
+          (episode) => episode.url === selectedEpisode,
         ) ||
         selectedVideo.episodes[0];
       const currentEpisodeIndex = Math.max(
         0,
         selectedVideo.episodes.findIndex(
-          (episode) => episode.url === currentEpisode?.url
-        )
+          (episode) => episode.url === currentEpisode?.url,
+        ),
       );
       const currentTime = Number.isFinite(videoRef.current?.currentTime)
         ? videoRef.current?.currentTime || 0
@@ -902,7 +920,7 @@ const VideoOnline: React.FC = () => {
           notice:
             currentTime >= MIN_RESUME_SECONDS
               ? `已切换到 ${source.name}，从 ${formatTime(
-                  currentTime
+                  currentTime,
                 )} 继续播放`
               : `已切换到 ${source.name}`,
         });
@@ -913,12 +931,7 @@ const VideoOnline: React.FC = () => {
         setIsSwitchingSource(false);
       }
     },
-    [
-      playVideo,
-      saveCurrentProgress,
-      selectedEpisode,
-      selectedVideo,
-    ]
+    [playVideo, saveCurrentProgress, selectedEpisode, selectedVideo],
   );
 
   const handleContinueWatching = useCallback(
@@ -942,7 +955,7 @@ const VideoOnline: React.FC = () => {
       setSelectedSourceId(source.id);
       playVideo(episode, video);
     },
-    [playVideo, selectedSource]
+    [playVideo, selectedSource],
   );
 
   const handleCloseSearchResults = useCallback(() => {
@@ -971,9 +984,9 @@ const VideoOnline: React.FC = () => {
       progressRecords.find(
         (record) =>
           record.id ===
-          getProgressId(video.sourceId, video.vod_name, episode.url)
+          getProgressId(video.sourceId, video.vod_name, episode.url),
       ),
-    [progressRecords]
+    [progressRecords],
   );
 
   useEffect(() => {
@@ -991,7 +1004,9 @@ const VideoOnline: React.FC = () => {
 
   useEffect(() => {
     const handleFullscreenChange = () => {
-      setIsFullscreen(document.fullscreenElement === playerContainerRef.current);
+      setIsFullscreen(
+        document.fullscreenElement === playerContainerRef.current,
+      );
     };
 
     document.addEventListener("fullscreenchange", handleFullscreenChange);
@@ -999,6 +1014,23 @@ const VideoOnline: React.FC = () => {
       document.removeEventListener("fullscreenchange", handleFullscreenChange);
     };
   }, []);
+
+  useEffect(() => {
+    if (isPlaying) {
+      startControlsHideTimer();
+    } else {
+      setShowControls(true);
+      if (controlsHideTimerRef.current) {
+        clearTimeout(controlsHideTimerRef.current);
+        controlsHideTimerRef.current = null;
+      }
+    }
+    return () => {
+      if (controlsHideTimerRef.current) {
+        clearTimeout(controlsHideTimerRef.current);
+      }
+    };
+  }, [isPlaying, startControlsHideTimer]);
 
   useEffect(() => {
     return () => {
@@ -1163,6 +1195,7 @@ const VideoOnline: React.FC = () => {
             <Paper
               ref={playerContainerRef}
               variant="outlined"
+              onMouseMove={handlePlayerMouseMove}
               sx={{
                 borderRadius: 1,
                 overflow: "hidden",
@@ -1222,6 +1255,10 @@ const VideoOnline: React.FC = () => {
                       color: theme.palette.common.white,
                       background:
                         "linear-gradient(to top, rgba(0,0,0,0.86), rgba(0,0,0,0.35), rgba(0,0,0,0))",
+                      opacity: showControls ? 1 : 0,
+                      visibility: showControls ? "visible" : "hidden",
+                      transition: "opacity 0.3s ease, visibility 0.3s ease",
+                      pointerEvents: showControls ? "auto" : "none",
                     }}
                   >
                     <Slider
@@ -1612,11 +1649,15 @@ const VideoOnline: React.FC = () => {
                         pr: 0.5,
                       }}
                     >
-                      <Stack direction="row" spacing={1} sx={{ flexWrap: "wrap", rowGap: 1 }}>
+                      <Stack
+                        direction="row"
+                        spacing={1}
+                        sx={{ flexWrap: "wrap", rowGap: 1 }}
+                      >
                         {selectedVideo.episodes.map((episode, index) => {
                           const episodeProgress = findEpisodeProgress(
                             selectedVideo,
-                            episode
+                            episode,
                           );
                           const isSelected = selectedEpisode === episode.url;
 
@@ -1626,17 +1667,21 @@ const VideoOnline: React.FC = () => {
                               title={
                                 episodeProgress
                                   ? `上次看到 ${formatTime(
-                                      episodeProgress.currentTime
+                                      episodeProgress.currentTime,
                                     )}`
                                   : ""
                               }
                             >
                               <Chip
-                                icon={isSelected ? <PlayArrowIcon /> : undefined}
+                                icon={
+                                  isSelected ? <PlayArrowIcon /> : undefined
+                                }
                                 label={episode.name}
                                 color={isSelected ? "primary" : "default"}
                                 variant={isSelected ? "filled" : "outlined"}
-                                onClick={() => playVideo(episode, selectedVideo)}
+                                onClick={() =>
+                                  playVideo(episode, selectedVideo)
+                                }
                                 clickable
                                 sx={{ borderRadius: 1 }}
                               />
@@ -1745,8 +1790,8 @@ const VideoOnline: React.FC = () => {
                           whiteSpace: "nowrap",
                         }}
                       >
-                        {record.episodeName} · {formatTime(record.currentTime)} ·{" "}
-                        {record.sourceName}
+                        {record.episodeName} · {formatTime(record.currentTime)}{" "}
+                        · {record.sourceName}
                       </Typography>
                       <LinearProgress
                         variant="determinate"
@@ -1779,136 +1824,138 @@ const VideoOnline: React.FC = () => {
         </Box>
 
         {hasSearched && (
-        <Box>
-          <Stack
-            direction="row"
-            alignItems="center"
-            justifyContent="space-between"
-            sx={{ mb: 1.5 }}
-          >
-            <Typography variant="h6" sx={{ fontWeight: 700 }}>
-              搜索结果
-            </Typography>
-            {videoList.length > 0 && (
-              <Stack direction="row" spacing={1} alignItems="center">
-                <Typography variant="body2" color="text.secondary">
-                  {videoList.length} 个结果
-                </Typography>
-                <Tooltip title="关闭搜索结果">
-                  <IconButton
-                    size="small"
-                    onClick={handleCloseSearchResults}
-                    aria-label="关闭搜索结果"
-                  >
-                    <CloseIcon fontSize="small" />
-                  </IconButton>
-                </Tooltip>
-              </Stack>
-            )}
-          </Stack>
+          <Box>
+            <Stack
+              direction="row"
+              alignItems="center"
+              justifyContent="space-between"
+              sx={{ mb: 1.5 }}
+            >
+              <Typography variant="h6" sx={{ fontWeight: 700 }}>
+                搜索结果
+              </Typography>
+              {videoList.length > 0 && (
+                <Stack direction="row" spacing={1} alignItems="center">
+                  <Typography variant="body2" color="text.secondary">
+                    {videoList.length} 个结果
+                  </Typography>
+                  <Tooltip title="关闭搜索结果">
+                    <IconButton
+                      size="small"
+                      onClick={handleCloseSearchResults}
+                      aria-label="关闭搜索结果"
+                    >
+                      <CloseIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                </Stack>
+              )}
+            </Stack>
 
-          {videoList.length === 0 ? (
-            <Paper
-              variant="outlined"
-              sx={{
-                p: 3,
-                borderRadius: 1,
-                textAlign: "center",
-                color: "text.secondary",
-              }}
-            >
-              <MovieIcon sx={{ fontSize: 38, mb: 1 }} />
-              <Typography variant="body2">输入关键词后显示匹配影片</Typography>
-            </Paper>
-          ) : (
-            <Box
-              sx={{
-                display: "grid",
-                gridTemplateColumns: {
-                  xs: "repeat(2, minmax(0, 1fr))",
-                  sm: "repeat(3, minmax(0, 1fr))",
-                  md: "repeat(4, minmax(0, 1fr))",
-                  lg: "repeat(6, minmax(0, 1fr))",
-                },
-                gap: 1.5,
-              }}
-            >
-              {videoList.map((video, index) => (
-                <Card
-                  key={video.vod_id || `${video.vod_name}-${index}`}
-                  variant="outlined"
-                  sx={{
-                    borderRadius: 1,
-                    overflow: "hidden",
-                    height: "100%",
-                  }}
-                >
-                  <CardActionArea
-                    onClick={() => {
-                      const firstEpisode = video.episodes[0];
-                      if (firstEpisode) playVideo(firstEpisode, video);
+            {videoList.length === 0 ? (
+              <Paper
+                variant="outlined"
+                sx={{
+                  p: 3,
+                  borderRadius: 1,
+                  textAlign: "center",
+                  color: "text.secondary",
+                }}
+              >
+                <MovieIcon sx={{ fontSize: 38, mb: 1 }} />
+                <Typography variant="body2">
+                  输入关键词后显示匹配影片
+                </Typography>
+              </Paper>
+            ) : (
+              <Box
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: {
+                    xs: "repeat(2, minmax(0, 1fr))",
+                    sm: "repeat(3, minmax(0, 1fr))",
+                    md: "repeat(4, minmax(0, 1fr))",
+                    lg: "repeat(6, minmax(0, 1fr))",
+                  },
+                  gap: 1.5,
+                }}
+              >
+                {videoList.map((video, index) => (
+                  <Card
+                    key={video.vod_id || `${video.vod_name}-${index}`}
+                    variant="outlined"
+                    sx={{
+                      borderRadius: 1,
+                      overflow: "hidden",
+                      height: "100%",
                     }}
-                    sx={{ height: "100%", alignItems: "stretch" }}
                   >
-                    {video.vod_pic ? (
-                      <CardMedia
-                        component="img"
-                        image={video.vod_pic}
-                        alt={video.vod_name}
-                        sx={{ aspectRatio: "2 / 3", objectFit: "cover" }}
-                      />
-                    ) : (
-                      <Box
-                        sx={{
-                          aspectRatio: "2 / 3",
-                          display: "grid",
-                          placeItems: "center",
-                          bgcolor: alpha(theme.palette.text.primary, 0.08),
-                        }}
-                      >
-                        <MovieIcon color="action" />
-                      </Box>
-                    )}
-                    <CardContent sx={{ p: 1.25 }}>
-                      <Typography
-                        variant="subtitle2"
-                        sx={{
-                          fontWeight: 700,
-                          minHeight: 40,
-                          display: "-webkit-box",
-                          WebkitLineClamp: 2,
-                          WebkitBoxOrient: "vertical",
-                          overflow: "hidden",
-                        }}
-                      >
-                        {video.vod_name}
-                      </Typography>
-                      <Stack
-                        direction="row"
-                        spacing={0.75}
-                        sx={{ mt: 1, flexWrap: "wrap", rowGap: 0.75 }}
-                      >
-                        <Chip
-                          label={`${video.episodes.length} 集`}
-                          size="small"
-                          sx={{ borderRadius: 1 }}
+                    <CardActionArea
+                      onClick={() => {
+                        const firstEpisode = video.episodes[0];
+                        if (firstEpisode) playVideo(firstEpisode, video);
+                      }}
+                      sx={{ height: "100%", alignItems: "stretch" }}
+                    >
+                      {video.vod_pic ? (
+                        <CardMedia
+                          component="img"
+                          image={video.vod_pic}
+                          alt={video.vod_name}
+                          sx={{ aspectRatio: "2 / 3", objectFit: "cover" }}
                         />
-                        {video.vod_remarks && (
+                      ) : (
+                        <Box
+                          sx={{
+                            aspectRatio: "2 / 3",
+                            display: "grid",
+                            placeItems: "center",
+                            bgcolor: alpha(theme.palette.text.primary, 0.08),
+                          }}
+                        >
+                          <MovieIcon color="action" />
+                        </Box>
+                      )}
+                      <CardContent sx={{ p: 1.25 }}>
+                        <Typography
+                          variant="subtitle2"
+                          sx={{
+                            fontWeight: 700,
+                            minHeight: 40,
+                            display: "-webkit-box",
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: "vertical",
+                            overflow: "hidden",
+                          }}
+                        >
+                          {video.vod_name}
+                        </Typography>
+                        <Stack
+                          direction="row"
+                          spacing={0.75}
+                          sx={{ mt: 1, flexWrap: "wrap", rowGap: 0.75 }}
+                        >
                           <Chip
-                            label={video.vod_remarks}
-                            color="primary"
+                            label={`${video.episodes.length} 集`}
                             size="small"
                             sx={{ borderRadius: 1 }}
                           />
-                        )}
-                      </Stack>
-                    </CardContent>
-                  </CardActionArea>
-                </Card>
-              ))}
-            </Box>
-          )}
-        </Box>
+                          {video.vod_remarks && (
+                            <Chip
+                              label={video.vod_remarks}
+                              color="primary"
+                              size="small"
+                              sx={{ borderRadius: 1 }}
+                            />
+                          )}
+                        </Stack>
+                      </CardContent>
+                    </CardActionArea>
+                  </Card>
+                ))}
+              </Box>
+            )}
+          </Box>
         )}
       </Stack>
     </Box>
