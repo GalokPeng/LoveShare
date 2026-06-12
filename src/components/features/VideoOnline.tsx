@@ -951,58 +951,81 @@ const VideoOnline: React.FC = () => {
   );
 
   const handleContinueWatching = useCallback(
-    async (record: ProgressRecord) => {
+    (record: ProgressRecord) => {
       const source =
         VIDEO_SOURCES.find((candidate) => candidate.id === record.sourceId) ||
         selectedSource;
+      const episode: VideoEpisode = {
+        name: record.episodeName,
+        url: record.episodeUrl,
+      };
+      // 先用记录数据立即播放，不等待采集
+      const quickVideo: VideoItem = {
+        vod_name: record.videoName,
+        vod_pic: record.poster,
+        vod_play_url: "",
+        sourceId: record.sourceId,
+        sourceName: record.sourceName || source.name,
+        episodes: [episode],
+      };
 
       setSelectedSourceId(source.id);
-      setIsSearching(true);
-      setError("");
+      setHasSearched(true);
+      playVideo(episode, quickVideo, {
+        resumeTime: record.currentTime,
+        notice:
+          record.currentTime >= MIN_RESUME_SECONDS
+            ? `已从 ${formatTime(record.currentTime)} 继续播放`
+            : "",
+      });
 
-      try {
-        const videos = (
-          await fetchVideosFromSource(source, record.videoName)
-        ).slice(0, 12);
-        const matchedVideo = findMatchingVideo(videos, {
-          vod_name: record.videoName,
-        } as VideoItem);
+      // 异步采集完整列表，加载后静默更新（不中断播放）
+      void fetchVideosFromSource(source, record.videoName)
+        .then((videos) => {
+          const sliced = videos.slice(0, 12);
+          const matchedVideo = findMatchingVideo(sliced, {
+            vod_name: record.videoName,
+          } as VideoItem);
 
-        if (!matchedVideo || matchedVideo.episodes.length === 0) {
-          throw new Error("No matching video found");
-        }
+          if (!matchedVideo || matchedVideo.episodes.length === 0) return;
 
-        // 在采集到的集数列表中查找对应的集
-        let targetEpisode = matchedVideo.episodes.find(
-          (ep) => ep.url === record.episodeUrl,
-        );
-        if (!targetEpisode) {
-          // URL 不匹配时按名称模糊匹配
-          targetEpisode = matchedVideo.episodes.find((ep) =>
-            normalizeComparableText(ep.name).includes(
-              normalizeComparableText(record.episodeName),
-            ),
+          // 查找当前播放的集，如果用户已切换到其他集则不覆盖
+          const currentPlayback = playbackRef.current;
+          if (
+            currentPlayback &&
+            normalizeComparableText(currentPlayback.video.vod_name) !==
+              normalizeComparableText(record.videoName)
+          ) {
+            return;
+          }
+
+          // 如果正在播放的集URL和采集结果中的某集匹配，切换到完整列表
+          let targetEpisode = matchedVideo.episodes.find(
+            (ep) => ep.url === record.episodeUrl,
           );
-        }
-        if (!targetEpisode) {
-          targetEpisode = matchedVideo.episodes[0];
-        }
+          if (!targetEpisode) {
+            targetEpisode = matchedVideo.episodes.find((ep) =>
+              normalizeComparableText(ep.name).includes(
+                normalizeComparableText(record.episodeName),
+              ),
+            );
+          }
+          if (!targetEpisode) {
+            targetEpisode = matchedVideo.episodes[0];
+          }
 
-        setHasSearched(true);
-        setVideoList(videos);
-        playVideo(targetEpisode, matchedVideo, {
-          resumeTime: record.currentTime,
-          notice:
-            record.currentTime >= MIN_RESUME_SECONDS
-              ? `已从 ${formatTime(record.currentTime)} 继续播放`
-              : "",
+          setVideoList(sliced);
+          setSelectedVideo(matchedVideo);
+          setSelectedEpisode(targetEpisode.url);
+
+          // 仅当集数有变化时才重新加载播放器
+          if (targetEpisode.url !== record.episodeUrl) return;
+          // 同一集但列表更完整了，更新 playbackRef 引用即可
+          playbackRef.current = { video: matchedVideo, episode: targetEpisode };
+        })
+        .catch(() => {
+          // 后台采集失败不影响已开始的播放，静默忽略
         });
-      } catch (error) {
-        console.error("Continue watching error:", error);
-        setError("加载观看记录失败，请尝试手动搜索。");
-      } finally {
-        setIsSearching(false);
-      }
     },
     [playVideo, selectedSource],
   );
