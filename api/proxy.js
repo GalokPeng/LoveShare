@@ -23,18 +23,23 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Invalid protocol" });
     }
 
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15000);
+
     const response = await fetch(targetUrl, {
       method: req.method,
       headers: {
         Accept: "application/json, text/plain, */*",
         "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
-        "User-Agent":
+        User-Agent:
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
         Referer: parsed.origin + "/",
       },
       redirect: "follow",
+      signal: controller.signal,
     });
 
+    clearTimeout(timeout);
     console.log(`[proxy] → ${targetUrl} [${response.status}]`);
 
     let data: unknown;
@@ -45,11 +50,13 @@ export default async function handler(req, res) {
       data = { raw: text.slice(0, 500), _error: "non-json-response" };
     }
 
-    res.status(response.status).json(data);
+    return res.status(response.status).json(data);
   } catch (error) {
-    console.error("[proxy] Error:", error);
-    res
+    const message =
+      error instanceof Error ? error.message : String(error ?? "Unknown error");
+    console.error("[proxy] Error:", message);
+    return res
       .status(500)
-      .json({ error: "Proxy request failed", details: error.message });
+      .json({ error: "Proxy request failed", details: message });
   }
 }
