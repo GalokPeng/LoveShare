@@ -18,6 +18,10 @@
       "use": "@vercel/node"
     },
     {
+      "src": "api/proxy.js",
+      "use": "@vercel/node"
+    },
+    {
       "src": "package.json",
       "use": "@vercel/static-build",
       "config": {
@@ -41,6 +45,10 @@
     {
       "src": "/api/supabase/query",
       "dest": "/api/supabase/query.ts"
+    },
+    {
+      "src": "/api/proxy",
+      "dest": "/api/proxy.js"
     },
     {
       "src": "/(.*)",
