@@ -268,17 +268,6 @@ const buildSearchUrl = (source: VideoSource, keyword: string) => {
   return `${source.searchUrl}${encodedKeyword}`;
 };
 
-// 外部 URL 自动走通用代理，避免跨域问题
-const proxyUrl = (url: string) => {
-  if (!url || url.startsWith("/")) return url;
-  try {
-    new URL(url);
-    return `/api/proxy?url=${encodeURIComponent(url)}`;
-  } catch {
-    return url;
-  }
-};
-
 const fetchVideosFromSource = async (source: VideoSource, keyword: string) => {
   const searchUrl = buildSearchUrl(source, keyword);
   const isExternalUrl = !searchUrl.startsWith("/");
@@ -1949,7 +1938,7 @@ const VideoOnline: React.FC = () => {
               direction="row"
               alignItems="center"
               justifyContent="space-between"
-              sx={{ mb: 1.5 }}
+              sx={{ mb: 1 }}
             >
               <Typography variant="h6" sx={{ fontWeight: 700 }}>
                 搜索结果
@@ -1971,6 +1960,41 @@ const VideoOnline: React.FC = () => {
                 </Stack>
               )}
             </Stack>
+
+            {VIDEO_SOURCES.length > 1 && (
+              <Stack
+                direction="row"
+                spacing={1}
+                alignItems="center"
+                sx={{ mb: 1.5, flexWrap: "wrap", rowGap: 1 }}
+              >
+                <SourceIcon fontSize="small" color="primary" />
+                <Typography variant="body2" color="text.secondary">
+                  切换源搜索：
+                </Typography>
+                {VIDEO_SOURCES.map((source) => {
+                  const isActiveSource = selectedSource.id === source.id;
+                  return (
+                    <Chip
+                      key={source.id}
+                      label={source.name}
+                      size="small"
+                      color={isActiveSource ? "primary" : "default"}
+                      variant={isActiveSource ? "filled" : "outlined"}
+                      onClick={
+                        isActiveSource || isSearching
+                          ? undefined
+                          : () => void handleSearch(searchTerm, source)
+                      }
+                      disabled={isSearching}
+                      clickable={!isSearching && !isActiveSource}
+                      sx={{ borderRadius: 1 }}
+                    />
+                  );
+                })}
+                {isSearching && <CircularProgress size={16} color="inherit" />}
+              </Stack>
+            )}
 
             {videoList.length === 0 ? (
               <Paper
