@@ -1,53 +1,21 @@
-import { StrictMode } from "react";
+import { lazy, StrictMode, Suspense } from "react";
 import { createRoot } from "react-dom/client";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { persistQueryClient } from "@tanstack/react-query-persist-client";
-import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
-import { Analytics } from "@vercel/analytics/react";
-import { BrowserRouter } from "react-router-dom";
+import { Status } from "./components/ui";
+import Directory from "./pages/Directory";
 import "./index.css";
-import App from "./App.tsx";
-import { AuthProvider } from "./contexts/AuthContext.tsx";
 
-// 创建持久化存储
-const persister = createSyncStoragePersister({
-  storage: window.localStorage,
-});
+const Admin = lazy(() => import("./pages/Admin"));
+const Note = lazy(() => import("./pages/Note"));
+const path = window.location.pathname.replace(/\/$/, "") || "/";
+const note = /^\/article\/([\w-]+)(?:\.html)?$/.exec(path);
 
-// 创建QueryClient实例，配置缓存时间
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: parseInt(import.meta.env.VITE_CACHE_DURATION || "3600") * 1000, // 缓存时间（毫秒），默认1小时
-      gcTime:
-        parseInt(import.meta.env.VITE_CACHE_DURATION || "3600") * 1000 * 24, // 缓存保留时间（毫秒），默认24小时
-      refetchOnWindowFocus: false, // 窗口焦点恢复时不重新获取数据
-      refetchOnReconnect: false, // 网络重连时不重新获取数据
-      refetchOnMount: false, // 挂载组件时不重新获取数据，使用缓存
-      retry: 0, // 失败时不重试
-    },
-  },
-});
-
-// 配置持久化缓存
-persistQueryClient({
-  queryClient,
-  persister,
-  maxAge: parseInt(import.meta.env.VITE_CACHE_DURATION || "3600") * 1000 * 24, // 缓存最大年龄
-  buster: import.meta.env.VITE_CACHE_VERSION || "v1", // 缓存版本号，更改时会清除旧缓存
-});
+const page = path === "/" ? <Directory /> :
+  /^\/admin(?:\/(links|categories|settings))?$/.test(path) ? <Admin /> :
+  note ? <Note slug={note[1]} /> :
+  <Status title="找不到这个页面" action={<a className="button primary" href="/">返回导航</a>} />;
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <BrowserRouter>
-          <App />
-          {import.meta.env.VITE_VERCEL_ANALYTICS_IS_OPEN === "true" && (
-            <Analytics />
-          )}
-        </BrowserRouter>
-      </AuthProvider>
-    </QueryClientProvider>
-  </StrictMode>
+    <Suspense fallback={<Status title="正在加载…" loading />}>{page}</Suspense>
+  </StrictMode>,
 );

@@ -1,220 +1,93 @@
-# Love Share
+# LoveShare 导航
 
-Love Share 是一个基于 React + TypeScript + Vite 构建的现代化数据展示平台，集成了 Supabase 后端服务，提供了表格视图和卡片视图切换、搜索、分页、分类筛选等功能。
+使用 React、TypeScript 和 Supabase 搭建的网站导航，适合整理个人收藏和团队常用网站。
 
-- 访问页面：[Demo](https://love-share.vercel.app/)
-
-## 项目特点
-
-- 🔥 **现代化技术栈**: 使用 React 19、TypeScript 和 Vite 构建，性能优异
-- 🎨 **美观的 UI 设计**: 基于 Material UI 构建，支持主题切换
-- 📊 **多种视图模式**: 支持表格视图和卡片视图切换
-- 🔍 **强大的搜索功能**: 支持多字段搜索
-- 📄 **分页功能**: 支持自定义每页显示数量
-- 📁 **分类筛选**: 支持按分类筛选数据
-- 🔄 **实时数据更新**: 使用 React Query 实现数据缓存和自动失效
-- 💪 **类型安全**: 全面的 TypeScript 支持
-- 📱 **响应式设计**: 适配各种屏幕尺寸
-- 🔒 **数据管理**: 支持数据增删改查
-
-你只需要在右上角 ⚙ 验证 supabase 的 Secret keys 即可对数据进行增删改查
-
-Secret keys 获取方式: dashboard --> project setting --> API keys
-
-## 管理演示
-
-![setting](https://github.com/GalokPeng/LoveShare/blob/main/public/demo_show.gif)
-
-认证通过后会在界面显示这些操作
-
-![admin](https://github.com/GalokPeng/LoveShare/blob/27cfaf98f4cc37fd1e0aa542f43179ec3a4dda9c/public/add_admin.png)
-
-## 快速体验
-
-### 0. 创建 Supabase 账号并运行 SQL （下方：Supabase 导航栏表创建）
-
-### 1. 一键部署
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/GalokPeng/LoveShare&project-name=LoveShare&repository-name=LoveShare&root-directory=src)
-
-### 2. 将.env.example 直接导入 vercel 环境变量
-
-- 修改 VITE_SUPABASE_URL 变量值 对应 Supabase 个人 API
-- 修改 VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY 变量值 对应 Supabase 个人 API Public Keys
-
-## 技术栈
-
-### 前端
-
-- **框架**: React 19
-- **语言**: TypeScript
-- **构建工具**: Vite (使用 rolldown-vite)
-- **UI 组件库**: Material UI (MUI) v7
-- **状态管理**: React Context + React Query
-- **主题管理**: 自定义 ThemeContext
-- **代码规范**: ESLint + TypeScript ESLint
-
-### 后端
-
-- **数据库**: Supabase
-- **API**: Supabase REST API
+- **访客**可按分类浏览，搜索网站名称、简介或网址，并切换管理员启用的卡片、列表和表格视图。
+- **管理员**可在 `/admin` 管理网站、分类、置顶、排序和公开状态，自定义全站及各分类的默认视图。
+- **部署**使用固定的 Supabase 表结构，只需配置项目 URL 和 Publishable Key。
 
 ## 快速开始
 
-### 前置要求
+### 1. 初始化 Supabase
 
-- Node.js 18+ 或 Bun
-- pnpm (推荐) 或 npm/yarn
-- Supabase 账号和项目
+在 Supabase 项目的 **SQL Editor** 中执行 [`supabase/schema.sql`](supabase/schema.sql) 的全部内容。脚本会创建导航、分类、站点设置和管理员四张表，以及默认设置、索引和读写权限。执行后可在后台添加第一个网站。
 
-### 安装
+### 2. 添加管理员
 
-1. 克隆项目
-
-```bash
-git clone <repository-url>
-cd love_share
-```
-
-2. 安装依赖
-
-```bash
-pnpm install
-# 或使用 npm
-npm install
-# 或使用 yarn
-yarn install
-```
-
-3. 配置环境变量
-
-创建 `.env.local` 文件，根据 `.env.example` 配置环境变量：
-
-- 以下显示必配字段，example 已经预备好，默认你只需要填写
-  - VITE_SUPABASE_URL 和 VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY
-
-```env
-# Supabase 配置
-VITE_SUPABASE_URL=<your-supabase-url>
-VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY=<your-supabase-anon-key>
-VITE_SUPABASE_PAGE_SIZE=12
-
-# 表配置
-# 格式：{"表名":{"show_name":"显示名称", "字段名":"显示名称"}}
-VITE_SUPABASE_TABLE_DIC={"navigation":{"show_name":"导航栏","id":"编号","created_at":"创建时间","title":"标题","abstract":"摘要","article":"文章","img":"图片","to_link":"跳转链接","obj":"分类"}}
-
-# 分类列配置
-# 格式：{"表名":"分类列名"}
-VITE_SUPABASE_TABLE_CATEGORY_COL={"navigation":"obj"}
-
-# 分类启用配置
-VITE_SUPABASE_TABLE_CATEGORY_ENABLE={"navigation":true}
-
-# 视图配置
-VITE_SUPABASE_TABLE_SHOW_VIEWS={"navigation":["card"]}
-
-# 搜索配置（例：根据title&abstract的内容查找）
-VITE_SUPABASE_TABLE_DEFAULT_SEARCH={"navigation":["title","abstract"]}
-```
-
-### 运行
-
-```bash
-pnpm dev & pnpm run server
-# 或使用 npm
-npm run dev & pnpm run server
-# 或使用 yarn
-yarn dev & pnpm run server
-```
-
-访问 `http://localhost:5173` 查看应用
-`http://localhost:3000` API (vercel 部署无需过多操作)
-
-## Supabase 导航栏表创建(必须)
-
-要使用项目的导航功能，需要在 Supabase 中创建 `navigation` 表。请执行以下 SQL 语句：
+在 Supabase Dashboard 的 **Authentication → Users** 中创建邮箱及密码账号，并确认邮箱。将以下语句中的值替换为该账号的 **User UID**，然后在 SQL Editor 执行。
 
 ```sql
--- 创建 navigation 表（与现有表结构一模一样）
-CREATE TABLE public.navigation (
-  id bigserial PRIMARY KEY,
-  created_at timestamp WITHOUT time zone DEFAULT now(),
-  title character varying,
-  abstract character varying,
-  article character varying,
-  img character varying,
-  to_link text, -- 跳转链接
-  obj text,     -- 分类
-  to_article boolean DEFAULT false, -- 是否跳转至文章页
-  slug uuid DEFAULT gen_random_uuid() -- 文章页面路径
-);
-
--- 字段注释
-COMMENT ON COLUMN public.navigation.to_link IS '跳转链接';
-COMMENT ON COLUMN public.navigation.obj IS '分类';
-COMMENT ON COLUMN public.navigation.to_article IS '是否跳转至文章页';
-COMMENT ON COLUMN public.navigation.slug IS '文章页面路径';
-
--- 启用 RLS（如果你需要启用）
-ALTER TABLE public.navigation ENABLE ROW LEVEL SECURITY;
-
--- 示例：允许 authenticated 用户 SELECT（根据需要启用）
--- CREATE POLICY "Allow authenticated select" ON public.navigation
---   FOR SELECT TO authenticated USING (true);
--- 示例2：直接公开
-CREATE POLICY "Allow anon select" ON public.navigation FOR SELECT TO anon USING (true);
-
--- 分类视图：navigation_obj  因为supabase不支持在视图中使用distinct()函数，所以需要创建一个分类视图
-CREATE OR REPLACE VIEW public.navigation_obj AS
-SELECT DISTINCT obj AS obj
-FROM public.navigation;
+insert into public.navigation_admins (user_id)
+values ('替换为管理员 User UID')
+on conflict do nothing;
 ```
+
+已公开的条目可供访客浏览。添加、编辑、删除和设置修改由 Supabase Auth 和行级安全策略（RLS）限制为管理员操作。
+
+### 3. 配置并启动
+
+将 [`.env.example`](.env.example) 复制为 `.env.local`。在 Supabase 项目的 **Connect** 中查找项目 URL 和 Publishable Key。旧项目可使用公开的 `anon` key。
+
+```dotenv
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_your_key
+```
+
+使用 Node.js 22.12 或更高版本，也支持 Node.js 20.19 及以上的 20.x 版本。
+
+```sh
+pnpm install
+pnpm dev
+```
+
+打开终端显示的地址，进入 `/admin` 登录。未配置 Supabase 时，首页会显示示例目录。
+
+## 管理后台
+
+| 页面 | 可用操作 |
+| --- | --- |
+| 链接管理 | 添加、编辑、删除、置顶、调整排序及控制公开状态。链接可直达网站，也可先打开站内说明。 |
+| 分类管理 | 添加、改名、排序和设置分类默认视图。删除分类时，该分类下的链接会移到「未分类」。 |
+| 呈现设置 | 修改站点名称、简介、默认主题、分类入口位置、每页数量、图标、域名和外链打开方式。可分别启用卡片、列表和表格，选择默认视图并预览。 |
+
+访客主动切换的视图保存在自己的浏览器中。未公开的链接及其站内说明仅管理员可读取。
+
+## 从旧版升级
+
+1. 备份旧项目的 `public.navigation`，然后在同一个 Supabase 项目执行 [建表与迁移脚本](supabase/schema.sql)。
+2. 按上文添加 Supabase Auth 管理员。脚本会应用新版导航权限，并收回旧 `navigation_obj` 分类视图的前端访问权限。
+3. 部署新版后在后台调整站点名称、主题和视图。旧的 `VITE_SUPABASE_PUBLISHABLE_DEFAULT_KEY` 仍可用作公开密钥的兼容别名。
+
+迁移可重复执行。现有链接、摘要、图标、站内说明、ID 和已有 slug 会保留。分类从原表的 `obj` 导入，空分类归入「未分类」。原有 `/article/<slug>` 和 `/article/<slug>.html` 地址仍可访问已公开的站内说明。旧库中手工录入的外链可以在后台审核、隐藏或删除。
+
+## 数据表
+
+| 表 | 用途 |
+| --- | --- |
+| `navigation` | 网站链接、站内说明、公开状态和排序 |
+| `navigation_categories` | 分类、顺序和分类默认视图 |
+| `navigation_settings` | 站点呈现设置 |
+| `navigation_admins` | 管理员的 Supabase Auth 用户 ID |
 
 ## 部署
 
-### Vercel
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FGalokPeng%2FLoveShare&env=VITE_SUPABASE_URL,VITE_SUPABASE_PUBLISHABLE_KEY)
 
-1. 登录 Vercel
-2. 导入项目
-3. 配置环境变量
-4. 部署
+在 Vercel 导入仓库时选用 **Vite**，并填入前述两个环境变量。`vercel.json` 已配置后台和站内说明的直达路由。
 
-### Netlify
+使用其他静态托管服务时，运行 `pnpm build`，发布 `dist/`，并将 `/admin`、`/admin/*` 和 `/article/*` 回退到 `index.html`。可以用 `pnpm lint` 检查代码，使用 `pnpm preview` 本地预览构建结果。
 
-1. 登录 Netlify
-2. 导入项目
-3. 配置环境变量
-4. 部署
+## 旧版截图
 
-### GitHub Pages
+<details>
+<summary>查看旧版演示和管理截图</summary>
 
-1. 配置 `vite.config.ts` 中的 `base` 选项
-2. 运行 `pnpm build` 构建项目
-3. 部署 `dist` 目录到 GitHub Pages
+![旧版界面演示](public/demo_show.gif)
+
+![旧版管理界面](public/add_admin.png)
+
+</details>
 
 ## 许可证
 
-[MIT License](https://github.com/GalokPeng/LoveShare?tab=MIT-1-ov-file#readme)
-
-## 贡献
-
-欢迎提交 Issue 和 Pull Request！
-
-## Star 趋势
-
-[![Star History Chart](https://api.star-history.com/svg?repos=galokpeng/LoveShare&type=Date)](https://star-history.com/#galokpeng/LoveShare&Date)
-
-## 反馈
-
-欢迎提交问题和反馈！您可以通过以下方式联系我：
-
-- [提交 Issue](https://github.com/galokpeng/LoveShare/issues)
-
-## 致谢
-
-- [React](https://react.dev/)
-- [TypeScript](https://www.typescriptlang.org/)
-- [Vite](https://vitejs.dev/)
-- [Material UI](https://mui.com/)
-- [Supabase](https://supabase.com/)
-- [React Query](https://tanstack.com/query/v5/)
+[MIT](LICENSE)

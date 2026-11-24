@@ -1,58 +1,8 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "api/vod/[...path].js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "api/auth/verify.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "api/data/[table].js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "api/supabase/query.ts",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "api/proxy.ts",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "dist"
-      }
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/vod(.*)",
-      "dest": "/api/vod/[...path].js"
-    },
-    {
-      "src": "/api/auth/verify",
-      "dest": "/api/auth/verify.js"
-    },
-    {
-      "src": "/api/data/(?<table>[^/]+)",
-      "dest": "/api/data/[table].js"
-    },
-    {
-      "src": "/api/supabase/query",
-      "dest": "/api/supabase/query.ts"
-    },
-    {
-      "src": "/api/proxy",
-      "dest": "/api/proxy.ts"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/dist/$1"
-    }
+  "framework": "vite",
+  "rewrites": [
+    { "source": "/admin", "destination": "/index.html" },
+    { "source": "/admin/:tab", "destination": "/index.html" },
+    { "source": "/article/:slug", "destination": "/index.html" }
   ]
 }

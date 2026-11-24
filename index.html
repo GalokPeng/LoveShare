@@ -1,23 +1,17 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>%VITE_SYSTEM_NAME%</title>
+    <meta name="description" content="按分类查找和直达收藏的网站。" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" type="image/svg+xml" href="/compass.svg" />
+    <title>LoveShare 导航</title>
     <script>
-      // 在页面加载时立即应用正确的主题样式，避免主题闪烁
-      const THEME_STORAGE_KEY = "love-share-theme";
-
-      // 从localStorage获取主题偏好，默认深色
-      const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
-      const isDarkMode = savedTheme !== null ? savedTheme === "dark" : true;
-
-      // 立即应用主题样式
-      const root = document.documentElement;
-      root.style.colorScheme = isDarkMode ? "dark" : "light";
-      root.style.color = isDarkMode ? "rgba(255, 255, 255, 0.87)" : "#213547";
-      root.style.backgroundColor = isDarkMode ? "#242424" : "#ffffff";
+      try {
+        const theme = localStorage.getItem("loveshare-theme");
+        if (theme === "dark" || theme === "light") document.documentElement.dataset.theme = theme;
+      } catch {}
     </script>
   </head>
   <body>

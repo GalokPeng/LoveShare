@@ -1,0 +1,112 @@
+@layer interface {
+  .admin-shell { display: grid; grid-template-columns: 190px minmax(0, 1fr); gap: 27px; align-items: start; padding-block: 30px; }
+  .admin-sidebar { border: 1px solid var(--line); border-radius: 13px; background: var(--surface); overflow: hidden; }
+  .admin-sidebar nav { display: grid; gap: 3px; padding: 8px; }
+  .admin-sidebar nav a { display: flex; align-items: center; gap: 9px; padding: 9px; border-radius: 7px; color: var(--muted); font-size: 14px; }
+  .admin-sidebar nav a:hover, .admin-sidebar nav a[aria-current="page"] { color: var(--accent-text); background: var(--accent-soft); }
+  .admin-sidebar nav a[aria-current="page"] { font-weight: 750; }
+  .admin-account { display: flex; align-items: center; gap: 6px; justify-content: space-between; padding: 6px 8px 6px 13px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; }
+  .admin-account span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .admin-account .icon-button, .admin-table .icon-button { min-height: 33px; width: 33px; }
+  .admin-content { min-width: 0; }
+  .admin-heading { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 18px; }
+  .admin-heading h1 { font-size: clamp(24px, 4vw, 36px); line-height: 1.25; letter-spacing: -.035em; }
+  .admin-heading p { color: var(--muted); margin-top: 4px; }
+  .admin-panel { min-width: 0; margin: 0; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); }
+  .admin-panel > .table-scroll { border: 0; border-radius: inherit; }
+  .admin-panel > .status { border: 0; }
+  .admin-panel > .admin-filters + .table-scroll { border-radius: 0 0 13px 13px; }
+  .admin-filters { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 13px; border-bottom: 1px solid var(--line); }
+  .admin-filters > span { margin-inline-start: auto; }
+  .admin-search { display: flex; gap: 7px; align-items: center; min-height: 40px; padding-inline: 9px; border: 1px solid var(--line); border-radius: 8px; color: var(--muted); }
+  .admin-search:focus-within { outline: 2px solid var(--focus); outline-offset: 2px; }
+  .admin-search input { min-width: 0; width: 170px; min-height: 37px; padding: 0; outline: 0; border: 0; background: transparent; color: var(--ink); }
+  .field :is(input, select, textarea), .admin-filters select {
+    width: 100%; min-width: 0; min-height: 40px; padding: 8px 10px; border: 1px solid var(--line);
+    border-radius: 8px; background: var(--raised); color: var(--ink); font-weight: 400;
+  }
+  .admin-filters select { width: auto; max-width: min(100%, 240px); }
+  .admin-table :is(td, th):first-child { padding-left: 14px; }
+  .admin-table td { padding-block: 9px; }
+  .admin-table td:first-child { color: var(--ink); }
+  .admin-table td:last-child { width: 96px; }
+  .admin-table .button-row { flex-wrap: nowrap; gap: 5px; }
+  .admin-link { display: flex; align-items: center; gap: 8px; min-width: 125px; }
+  .admin-link strong, .admin-link a { display: flex; align-items: center; gap: 4px; }
+  .admin-link a { font-size: 11px; color: var(--muted); }
+  .admin-link a:hover { color: var(--accent-text); }
+  .admin-link .link-icon { width: 33px; height: 33px; font-size: 14px; border-radius: 8px; }
+  .state-label { display: inline-block; padding: 1px 7px; border-radius: 5px; white-space: nowrap; background: var(--raised); color: var(--muted); }
+  .state-label.published { background: var(--success-bg); color: var(--success); }
+  .delete-icon:hover { color: var(--danger); }
+  .admin-back { display: inline-flex; align-items: center; gap: 5px; margin-top: 18px; color: var(--muted); font-size: 13px; }
+  .admin-back:hover { color: var(--accent-text); }
+
+  .login-shell { padding-block: clamp(45px, 10vw, 100px); }
+  .login-panel { width: min(420px, 100%); margin-inline: auto; padding: clamp(19px, 5vw, 34px); border: 1px solid var(--line); border-radius: 17px; background: var(--surface); box-shadow: var(--shadow); }
+  .section-icon { display: inline-grid; place-items: center; width: 46px; height: 46px; border-radius: 12px; background: var(--accent-soft); color: var(--accent-text); }
+  .login-panel h1 { margin-top: 12px; font-size: 26px; letter-spacing: -.036em; }
+  .login-panel > p { color: var(--muted); }
+  .login-form { display: grid; gap: 13px; margin-top: 18px; }
+  .login-form .button { margin-top: 3px; }
+  .site-header + .shell > .status { margin-top: 23px; }
+
+  .modal {
+    width: min(570px, calc(100% - 24px)); max-height: calc(100dvh - 24px); padding: 0; overflow: auto;
+    border: 1px solid var(--line); border-radius: 15px; background: var(--surface); color: var(--ink);
+    box-shadow: 0 16px 60px #050b2b4d;
+  }
+  .modal::backdrop { background: #101b47a1; }
+  .modal-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 14px 16px; border-bottom: 1px solid var(--line); }
+  .modal-header h2 { font-size: 20px; line-height: 1.2; }
+  .modal-header .icon-button { min-height: 33px; width: 33px; }
+  .modal-body { padding: 16px; }
+  .modal-body p { color: var(--muted); }
+  .modal-body > p + .error-message { margin-top: 10px; }
+  .form-actions { display: flex; justify-content: flex-end; gap: 8px; padding: 13px 16px; border-top: 1px solid var(--line); }
+  .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px; }
+  .span-two { grid-column: 1 / -1; }
+  .field { display: grid; align-content: start; gap: 5px; font-size: 13px; font-weight: 650; }
+  .field textarea { resize: vertical; }
+  .field-help { color: var(--muted); font-size: 13px; }
+  .check { display: flex; align-items: center; gap: 6px; min-height: 34px; color: var(--ink); font-size: 13px; }
+  .check input, .mode-choice input { width: 16px; height: 16px; margin: 0; accent-color: var(--accent); }
+  :is(.error-message, .success-message) { border-radius: 8px; padding: 8px 10px; font-size: 13px; overflow-wrap: anywhere; }
+  .error-message, .modal-body .error-message { background: var(--danger-bg); color: var(--danger); }
+  .success-message { background: var(--success-bg); color: var(--success); }
+  .admin-content > :is(.success-message, .error-message, .status) { margin-bottom: 12px; }
+
+  .settings-form { display: grid; gap: 11px; }
+  .settings-section { padding: 8px 14px 14px; }
+  .settings-section legend { padding-inline: 6px; font-size: 16px; font-weight: 750; color: var(--ink); }
+  .mode-options { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 8px; margin-bottom: 14px; }
+  .mode-choice {
+    display: flex; align-items: center; gap: 8px; min-height: 52px; padding: 9px;
+    border: 1px solid var(--line); border-radius: 9px; font-size: 13px; cursor: pointer; color: var(--muted);
+  }
+  .mode-choice:has(input:checked) { background: var(--accent-soft); border-color: var(--focus); color: var(--accent-text); }
+  .mode-check { margin-left: auto; }
+  .settings-toggles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1px 10px; margin-top: 12px; }
+  .settings-actions { display: flex; gap: 8px; justify-content: flex-end; align-items: center; flex-wrap: wrap; }
+  .preview-panel { margin-top: 18px; padding: 13px; background: var(--raised); }
+  .preview-header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+  .preview-header h2 { display: inline-flex; align-items: center; gap: 6px; font-size: 16px; }
+
+  @media (max-width: 780px) {
+    .admin-shell { grid-template-columns: 1fr; gap: 13px; padding-block: 15px; }
+    .admin-sidebar { display: flex; justify-content: space-between; flex-wrap: wrap; }
+    .admin-sidebar nav { display: flex; flex-wrap: wrap; }
+    .admin-account { border-top: 0; }
+    .admin-account span { max-width: min(235px, 50vw); }
+  }
+  @media (max-width: 475px) {
+    .admin-account { padding-block: 1px 5px; }
+    .admin-heading p { font-size: 13px; }
+    .admin-filters { padding: 9px; }
+    .admin-search { width: 100%; }
+    .admin-search input { width: 100%; }
+    .mode-choice { gap: 5px; padding: 5px; }
+    .mode-choice > svg { width: 15px; }
+    .mode-choice .mode-check { display: none; }
+  }
+}
